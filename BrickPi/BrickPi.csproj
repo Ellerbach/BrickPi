@@ -126,7 +126,7 @@
     <AppxManifest Include="Package.appxmanifest">
       <SubType>Designer</SubType>
     </AppxManifest>
-    <None Include="BrcikPi_TemporaryKey.pfx" />
+    <None Include="BrickPi_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="OriginalCode.txt" />

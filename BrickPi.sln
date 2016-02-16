@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BrickPi", "BrcikPi\BrickPi.csproj", "{76AF7E5F-820D-475F-AE13-433DB05137C2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BrickPi", "BrickPi\BrickPi.csproj", "{76AF7E5F-820D-475F-AE13-433DB05137C2}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BrickPiExample", "BrickPiExample\BrickPiExample.csproj", "{DC6491E5-476E-407A-A7AA-2E1A9F1F3973}"
 EndProject
