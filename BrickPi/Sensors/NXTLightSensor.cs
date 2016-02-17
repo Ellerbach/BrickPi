@@ -33,7 +33,7 @@ namespace BrickPi.Sensors
         Ambient = BrickSensorType.LIGHT_OFF,
     };
 
-    class NXTLightSensor: SensorNotificationBase, ISensor
+    public sealed class NXTLightSensor: ISensor
     {
         private LightMode lightMode;
         private Brick brick = null;
@@ -52,14 +52,21 @@ namespace BrickPi.Sensors
 
         }
 
+        private SensorNotificationBase notification;
         /// <summary>
         /// Update the sensor and this will raised an event on the interface
         /// </summary>
         public void UpdateSensor()
         {
-            this.Value = ReadRaw();
-            this.ValueAsString = ReadAsString();
+            notification.Value = ReadRaw();
+            notification.ValueAsString = ReadAsString();
         }
+
+        /// <summary>
+        /// Use this property when you want to get notification into a UI
+        /// </summary>
+        public SensorNotificationBase Notification
+        { get { return notification; } internal set { notification = value; } }
 
         /// <summary>
         /// This is used to change the level which indicate if the sensor

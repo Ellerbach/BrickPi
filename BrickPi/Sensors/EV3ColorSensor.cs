@@ -16,7 +16,7 @@ using System;
 
 namespace BrickPi.Sensors
 {
-    class EV3ColorSensor: SensorNotificationBase, ISensor
+    public sealed class EV3ColorSensor: ISensor
     {
         private Brick brick = null;
         private ColorSensorMode colorMode;
@@ -82,14 +82,21 @@ namespace BrickPi.Sensors
             
         }
 
+        private SensorNotificationBase notification;
         /// <summary>
         /// Update the sensor and this will raised an event on the interface
         /// </summary>
         public void UpdateSensor()
         {
-            this.Value = ReadRaw();
-            this.ValueAsString = ReadAsString();
+            notification.Value = ReadRaw();
+            notification.ValueAsString = ReadAsString();
         }
+
+        /// <summary>
+        /// Use this property when you want to get notification into a UI
+        /// </summary>
+        public SensorNotificationBase Notification
+        { get { return notification; } internal set { notification = value; } }
 
         private void GetRawValues()
         {

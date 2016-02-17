@@ -3,14 +3,15 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
-using Windows.UI.Xaml;
+
 
 namespace BrickPi.Sensors
 {
-    internal class SensorNotificationBase
+    public sealed class SensorNotificationBase
     {
-        DispatcherTimer timer;
+        Timer timer;
 
         public SensorNotificationBase() : this(1000)
         {
@@ -29,27 +30,25 @@ namespace BrickPi.Sensors
         public void InitializeTimer(int miliseconds)
         {
             StopTimerInternal();
-            timer = new DispatcherTimer();
-            timer.Interval = TimeSpan.FromMilliseconds(miliseconds);
-            timer.Tick += Timer_Tick;
-            timer.Start();
+            timer = new Timer(Timer_Tick, this, TimeSpan.FromMilliseconds(miliseconds), TimeSpan.FromMilliseconds(miliseconds));
+
+        }
+
+        private void Timer_Tick(object state)
+        {
+            OnPropertyChanged(nameof(ValueAsString));
+            OnPropertyChanged(nameof(Value));
         }
 
         private void StopTimerInternal()
         {
             if (timer != null)
             {
-                timer.Tick -= Timer_Tick;
-                timer.Stop();
+                timer.Dispose();
                 timer = null;
             }
         }
 
-        private void Timer_Tick(object sender, object e)
-        {
-            OnPropertyChanged(nameof(ValueAsString));
-            OnPropertyChanged(nameof(Value));
-        }
 
         private int value;
         private string valueAsString;

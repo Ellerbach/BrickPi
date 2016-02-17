@@ -13,7 +13,7 @@
 
 namespace BrickPi.Sensors
 {
-    class NXTSoundSensor : SensorNotificationBase, ISensor
+    public sealed class NXTSoundSensor : ISensor
     {
         private Brick brick = null;
         private const int NXTCutoff = 512;
@@ -30,14 +30,22 @@ namespace BrickPi.Sensors
             brick.SetupSensors();
         }
 
+        private SensorNotificationBase notification;
         /// <summary>
         /// Update the sensor and this will raised an event on the interface
         /// </summary>
         public void UpdateSensor()
         {
-            this.Value = ReadRaw();
-            this.ValueAsString = ReadAsString();
+            notification.Value = ReadRaw();
+            notification.ValueAsString = ReadAsString();
         }
+
+        /// <summary>
+        /// Use this property when you want to get notification into a UI
+        /// </summary>
+        public SensorNotificationBase Notification
+        { get { return notification; } internal set { notification = value; } }
+
         /// <summary>
         /// Reads the sensor value as a string.
         /// </summary>

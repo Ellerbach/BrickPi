@@ -19,7 +19,7 @@ using System.Threading.Tasks;
 
 namespace BrickPi.Sensors
 {
-    class AnalogSensor : SensorNotificationBase, ISensor
+    public sealed class AnalogSensor : ISensor
     {
         private Brick brick = null;
 
@@ -35,16 +35,21 @@ namespace BrickPi.Sensors
             get; internal set;
         }
 
+        private SensorNotificationBase notification;
         /// <summary>
         /// Update the sensor and this will raised an event on the interface
         /// </summary>
         public void UpdateSensor()
         {
-            this.Value = ReadRaw();
-            this.ValueAsString = ReadAsString();
+            notification.Value = ReadRaw();
+            notification.ValueAsString = ReadAsString();
         }
 
-
+        /// <summary>
+        /// Use this property when you want to get notification into a UI
+        /// </summary>
+        public SensorNotificationBase Notification
+        { get { return notification; } internal set { notification = value; } }
 
         public int ReadRaw()
         {

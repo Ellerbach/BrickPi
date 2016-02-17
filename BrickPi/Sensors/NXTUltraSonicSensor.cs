@@ -37,7 +37,7 @@ namespace BrickPi.Sensors
         /// </summary>
         Listen = BrickSensorType.EV3_US_M2, 
     };
-    class NXTUltraSonicSensor: SensorNotificationBase, ISensor
+    public sealed class NXTUltraSonicSensor: ISensor
     {
         private Brick brick = null;
         private UltraSonicMode sonarMode;
@@ -62,14 +62,21 @@ namespace BrickPi.Sensors
             get; internal set;
         }
 
+        private SensorNotificationBase notification;
         /// <summary>
         /// Update the sensor and this will raised an event on the interface
         /// </summary>
         public void UpdateSensor()
         {
-            this.Value = ReadRaw();
-            this.ValueAsString = ReadAsString();
+            notification.Value = ReadRaw();
+            notification.ValueAsString = ReadAsString();
         }
+
+        /// <summary>
+        /// Use this property when you want to get notification into a UI
+        /// </summary>
+        public SensorNotificationBase Notification
+        { get { return notification; } internal set { notification = value; } }
 
         /// <summary>
         /// Gets or sets the sonar mode.
