@@ -194,6 +194,10 @@ namespace BrickPi
                 //initial setup is RAW sensor
                 sensor[i].Value = (int)BrickSensorType.SENSOR_RAW;
             }
+            for(int i=0; i<motor.Length;i++)
+            {
+                motor[i] = new BrickMotor();
+            }
         }
         //no set
         /// <summary>

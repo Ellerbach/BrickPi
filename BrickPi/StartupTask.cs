@@ -36,11 +36,11 @@ namespace BrickPi
             brick = new Brick();
 
             // Just for test. Cahnge it
-            while(true)
-            {
+            //while(true)
+            //{
                 TestMotor().Wait();
-                //Testbutton().Wait();
-            }
+            //    //Testbutton().Wait();
+            //}
         }
 
         private void TaskInstance_Canceled(IBackgroundTaskInstance sender, BackgroundTaskCancellationReason reason)

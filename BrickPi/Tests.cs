@@ -137,7 +137,7 @@ namespace BrickPi
                 for (int i = 0; i < motor.Length; i++)
                 {
                     Debug.WriteLine(string.Format("Encoder motor {0}: {1}", i, motor[i].GetTachoCount()));
-                    motor[i].SetSpeed(motor[i].GetSpeed() + 5);
+                    motor[i].SetSpeed(motor[i].GetSpeed() + 1);
                 }
                 await Task.Delay(200);
             }
