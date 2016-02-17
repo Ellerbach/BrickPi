@@ -13,7 +13,7 @@
 
 namespace BrickPi.Sensors
 {
-    class EV3TouchSensor : ISensor
+    class EV3TouchSensor : SensorNotificationBase, ISensor
     {
         private Brick brick = null;
         // in the BrickPi source code, this value is 1020

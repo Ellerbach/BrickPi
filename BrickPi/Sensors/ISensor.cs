@@ -33,7 +33,7 @@ namespace BrickPi.Sensors
         /// </summary>
         /// <returns>The value as a int</returns>
         int ReadRaw();
-        
+
         /// <summary>
         /// Gets the name of the sensor.
         /// </summary>

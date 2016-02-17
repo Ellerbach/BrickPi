@@ -16,7 +16,7 @@ using System;
 
 namespace BrickPi.Sensors
 {
-    class EV3UltraSonicSensor:ISensor
+    class EV3UltraSonicSensor: SensorNotificationBase, ISensor
     {
         private Brick brick = null;
         private UltraSonicMode mode;

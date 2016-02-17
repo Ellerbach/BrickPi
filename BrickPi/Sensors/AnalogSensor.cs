@@ -19,7 +19,7 @@ using System.Threading.Tasks;
 
 namespace BrickPi.Sensors
 {
-    class AnalogSensor : ISensor
+    class AnalogSensor : SensorNotificationBase, ISensor
     {
         private Brick brick = null;
 
@@ -34,6 +34,8 @@ namespace BrickPi.Sensors
         {
             get; internal set;
         }
+
+        
 
         public int ReadRaw()
         {

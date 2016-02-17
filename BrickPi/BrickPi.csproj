@@ -116,6 +116,7 @@
     <Compile Include="Sensors\NXTSoundSensor.cs" />
     <Compile Include="Sensors\NXTTouchSensor.cs" />
     <Compile Include="Sensors\NXTUltraSonicSensor.cs" />
+    <Compile Include="Sensors\SensorNotificationBase.cs" />
     <Compile Include="StartupTask.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Tests.cs" />

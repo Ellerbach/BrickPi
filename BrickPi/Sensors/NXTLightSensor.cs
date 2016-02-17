@@ -33,7 +33,7 @@ namespace BrickPi.Sensors
         Ambient = BrickSensorType.LIGHT_OFF,
     };
 
-    class NXTLightSensor:ISensor
+    class NXTLightSensor: SensorNotificationBase, ISensor
     {
         private LightMode lightMode;
         private Brick brick = null;

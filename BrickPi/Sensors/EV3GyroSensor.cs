@@ -34,7 +34,7 @@ namespace BrickPi.Sensors
 #pragma warning restore
     };
 
-    class EV3GyroSensor:ISensor
+    class EV3GyroSensor: SensorNotificationBase, ISensor
     {
         private Brick brick = null;
         private GyroMode gmode;

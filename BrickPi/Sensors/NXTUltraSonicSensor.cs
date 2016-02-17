@@ -37,7 +37,7 @@ namespace BrickPi.Sensors
         /// </summary>
         Listen = BrickSensorType.EV3_US_M2, 
     };
-    class NXTUltraSonicSensor:ISensor
+    class NXTUltraSonicSensor: SensorNotificationBase, ISensor
     {
         private Brick brick = null;
 

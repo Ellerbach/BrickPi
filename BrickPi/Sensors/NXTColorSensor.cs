@@ -84,7 +84,7 @@ namespace BrickPi.Sensors
         public byte Blue { get { return blue; } }
     }
 
-    class NXTColorSensor : ISensor
+    class NXTColorSensor : SensorNotificationBase, ISensor
     {
         private Brick brick = null;
         private ColorSensorMode colorMode;

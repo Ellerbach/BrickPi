@@ -13,7 +13,7 @@
 
 namespace BrickPi.Sensors
 {
-    class NXTSoundSensor : ISensor
+    class NXTSoundSensor : SensorNotificationBase, ISensor
     {
         private Brick brick = null;
         private const int NXTCutoff = 512;

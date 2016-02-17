@@ -13,7 +13,7 @@
 
 namespace BrickPi.Sensors
 {
-    class NXTTouchSensor: ISensor
+    class NXTTouchSensor: SensorNotificationBase, ISensor
     {
         private Brick brick = null;
 

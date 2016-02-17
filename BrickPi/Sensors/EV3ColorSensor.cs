@@ -16,7 +16,7 @@ using System;
 
 namespace BrickPi.Sensors
 {
-    class EV3ColorSensor:ISensor
+    class EV3ColorSensor: SensorNotificationBase, ISensor
     {
         private Brick brick = null;
         private ColorSensorMode colorMode;
@@ -78,6 +78,8 @@ namespace BrickPi.Sensors
                     brick.SetupSensors();
                 }
             }
+
+            
         }
 
         private void GetRawValues()

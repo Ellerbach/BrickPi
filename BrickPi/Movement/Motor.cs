@@ -12,6 +12,7 @@
 //////////////////////////////////////////////////////////
 
 using System;
+using System.ComponentModel;
 
 namespace BrickPi.Movement
 {
@@ -26,7 +27,7 @@ namespace BrickPi.Movement
 #pragma warning restore
     };
 
-    public sealed class Motor
+    public sealed class Motor 
     {
         // represent the Brick
         private Brick brick = null;
@@ -49,6 +50,9 @@ namespace BrickPi.Movement
             if (speed < -255)
                 speed = -255;
             brick.BrickPi.Motor[(int)Port].Speed = speed;
+
+            //raise the event to notify the UI
+            OnPropertyChanged(nameof(Speed));
         }
 
         /// <summary>
@@ -137,6 +141,17 @@ namespace BrickPi.Movement
         { get { return GetSpeed();  } set { SetSpeed(value);  } }
 
         public BrickPortMotor Port { get; internal set; }
-        
+
+        protected void OnPropertyChanged(string name)
+        {
+            PropertyChangedEventHandler handler = PropertyChanged;
+            if (handler != null)
+            {
+                handler(this, new PropertyChangedEventArgs(name));
+            }
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
     }
 }

@@ -74,7 +74,7 @@ namespace BrickPi.Sensors
 
     }
 
-    class EV3IRSensor:ISensor
+    class EV3IRSensor: SensorNotificationBase, ISensor
     {
         private Brick brick = null;
         private IRMode mode;
