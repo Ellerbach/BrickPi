@@ -40,6 +40,7 @@ namespace BrickPi.Sensors
     class NXTUltraSonicSensor: SensorNotificationBase, ISensor
     {
         private Brick brick = null;
+        private UltraSonicMode sonarMode;
 
         public NXTUltraSonicSensor(BrickPortSensor port):this(port, UltraSonicMode.Centimeter)
         { }
@@ -60,7 +61,15 @@ namespace BrickPi.Sensors
         {
             get; internal set;
         }
-        private UltraSonicMode sonarMode;
+
+        /// <summary>
+        /// Update the sensor and this will raised an event on the interface
+        /// </summary>
+        public void UpdateSensor()
+        {
+            this.Value = ReadRaw();
+            this.ValueAsString = ReadAsString();
+        }
 
         /// <summary>
         /// Gets or sets the sonar mode.

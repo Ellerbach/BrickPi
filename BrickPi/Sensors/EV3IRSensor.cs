@@ -85,6 +85,15 @@ namespace BrickPi.Sensors
         }
 
         /// <summary>
+        /// Update the sensor and this will raised an event on the interface
+        /// </summary>
+        public void UpdateSensor()
+        {
+            this.Value = ReadRaw();
+            this.ValueAsString = ReadAsString();
+        }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="MonoBrick.EV3.IRSensor"/> class.
         /// </summary>
         /// <param name="mode">Mode.</param>

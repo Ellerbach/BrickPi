@@ -82,6 +82,15 @@ namespace BrickPi.Sensors
             
         }
 
+        /// <summary>
+        /// Update the sensor and this will raised an event on the interface
+        /// </summary>
+        public void UpdateSensor()
+        {
+            this.Value = ReadRaw();
+            this.ValueAsString = ReadAsString();
+        }
+
         private void GetRawValues()
         {
             rawValues[RedIndex] = (short)(brick.BrickPi.Sensor[(int)Port].Value & 0xFF);

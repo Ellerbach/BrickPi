@@ -52,6 +52,19 @@ namespace BrickPi.Sensors
 
         }
 
+        /// <summary>
+        /// Update the sensor and this will raised an event on the interface
+        /// </summary>
+        public void UpdateSensor()
+        {
+            this.Value = ReadRaw();
+            this.ValueAsString = ReadAsString();
+        }
+
+        /// <summary>
+        /// This is used to change the level which indicate if the sensor
+        /// is on something dark or clear
+        /// </summary>
         public int CutOff { get; set; }
 
         public LightMode LightMode

@@ -35,7 +35,16 @@ namespace BrickPi.Sensors
             get; internal set;
         }
 
-        
+        /// <summary>
+        /// Update the sensor and this will raised an event on the interface
+        /// </summary>
+        public void UpdateSensor()
+        {
+            this.Value = ReadRaw();
+            this.ValueAsString = ReadAsString();
+        }
+
+
 
         public int ReadRaw()
         {

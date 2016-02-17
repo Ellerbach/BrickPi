@@ -51,6 +51,14 @@ namespace BrickPi.Sensors
             brick.SetupSensors();
         }
 
+        /// <summary>
+        /// Update the sensor and this will raised an event on the interface
+        /// </summary>
+        public void UpdateSensor()
+        {
+            this.Value = ReadRaw();
+            this.ValueAsString = ReadAsString();
+        }
 
         /// <summary>
         /// Gets or sets the Gyro mode. 
