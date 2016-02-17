@@ -38,7 +38,7 @@ namespace BrickPi
             // Just for test. Cahnge it
             //while(true)
             //{
-                TestMotor().Wait();
+            //    TestMotor().Wait();
             //    //Testbutton().Wait();
             //}
         }
