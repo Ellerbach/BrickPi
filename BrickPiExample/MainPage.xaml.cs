@@ -1,8 +1,14 @@
-﻿using System;
+﻿using BrickPi;
+using BrickPi.Sensors;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using System.Threading.Tasks;
+using Windows.Devices.Enumeration;
+using Windows.Devices.SerialCommunication;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.UI.Xaml;
@@ -22,11 +28,59 @@ namespace BrickPiExample
     /// </summary>
     public sealed partial class MainPage : Page
     {
-        private BrickPi.Brick brick;
+        private Brick brick;
+        private SerialDevice serialPort = null;
+        private NXTTouchSensor touch;
         public MainPage()
         {
             this.InitializeComponent();
-            brick = new BrickPi.Brick();
+
+            
+
+                this.Loaded += MainPage_Loaded;
+
+        }
+
+        private async Task InitSerial()
+        {
+            string aqs = SerialDevice.GetDeviceSelector();
+            var dis = await DeviceInformation.FindAllAsync(aqs);
+
+            for (int i = 0; i < dis.Count; i++)
+            {
+                Debug.WriteLine(string.Format("Serial device found: {0}", dis[i].Id));
+                if (dis[i].Id.IndexOf("UART0") != -1)
+                {
+                    serialPort = await SerialDevice.FromIdAsync(dis[i].Id);
+                }
+            }
+            if (serialPort != null)
+            {
+                Debug.WriteLine("Serial port initialiazed");
+                brick = new Brick(serialPort);
+                Debug.WriteLine("Brick initialiazed");
+            }
+
+        }
+
+        private async void MainPage_Loaded(object sender, RoutedEventArgs e)
+        {
+            await InitSerial();
+            try
+            {
+                touch = new NXTTouchSensor(BrickPortSensor.PORT_S2);
+                while (true)
+                {
+                    Debug.WriteLine(string.Format("touch {0}", touch.ValueAsString));
+                    await Task.Delay(100);
+                }
+            }
+            catch (Exception ex)
+            {
+
+                Debug.WriteLine(ex.Message);
+            }
+            
         }
     }
 }

@@ -13,13 +13,13 @@ namespace BrickPi.Sensors
     {
         Timer timer;
 
-        public SensorNotificationBase() : this(1000)
+        public SensorNotificationBase(TimerCallback callback) : this(callback, 1000)
         {
         }
 
-        public SensorNotificationBase(int miliseconds)
+        public SensorNotificationBase(TimerCallback callback, int miliseconds)
         {
-            InitializeTimer(miliseconds);
+            InitializeTimer(miliseconds, callback);
         }
 
         public void StopSendingNotifications()
@@ -27,17 +27,11 @@ namespace BrickPi.Sensors
             StopTimerInternal();
         }
 
-        public void InitializeTimer(int miliseconds)
+        public void InitializeTimer(int miliseconds, TimerCallback callback)
         {
             StopTimerInternal();
-            timer = new Timer(Timer_Tick, this, TimeSpan.FromMilliseconds(miliseconds), TimeSpan.FromMilliseconds(miliseconds));
+            timer = new Timer(callback, this, TimeSpan.FromMilliseconds(miliseconds), TimeSpan.FromMilliseconds(miliseconds));
 
-        }
-
-        private void Timer_Tick(object state)
-        {
-            OnPropertyChanged(nameof(ValueAsString));
-            OnPropertyChanged(nameof(Value));
         }
 
         private void StopTimerInternal()
@@ -53,36 +47,29 @@ namespace BrickPi.Sensors
         private int value;
         private string valueAsString;
 
+        /// <summary>
+        /// Return the raw value of the sensor
+        /// </summary>
         public int Value
-        {
-            get
-            {
-                return value;
-            }
-
-            set
-            {
+        { get { return value; }
+            set {
                 if (value != this.value)
                 {
                     this.value = value;
-                }
-            }
-        }
+                    OnPropertyChanged(nameof(Value));
+                } } }
 
+        /// <summary>
+        /// Return the raw value  as a string of the sensor
+        /// </summary>
         public string ValueAsString
-        {
-            get
-            {
-                return valueAsString;
-            }
-            set
-            {
+        { get { return valueAsString; }
+            set {
                 if (valueAsString != value)
                 {
                     valueAsString = value;
-                }
-            }
-        }
+                    OnPropertyChanged(nameof(ValueAsString));
+                } } }
 
         protected void OnPropertyChanged(string name)
         {

@@ -20,10 +20,12 @@ namespace BrickPi.Sensors
 	/// </summary>
     public interface ISensor
 	{
+        int Value { get; }
+        string ValueAsString { get; }
         /// <summary>
         /// To update sensors
         /// </summary>
-        void UpdateSensor();
+        void UpdateSensor(object state);
 		/// <summary>
 		/// Reads the sensor value as a string.
 		/// </summary>

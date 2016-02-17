@@ -13,18 +13,23 @@
 
 using BrickPi.Extensions;
 using System;
+using System.ComponentModel;
+using System.Threading;
 
 namespace BrickPi.Sensors
 {
-    public sealed class EV3UltraSonicSensor: ISensor
+    public sealed class EV3UltraSonicSensor: INotifyPropertyChanged, ISensor
     {
         private Brick brick = null;
         private UltraSonicMode mode;
 
-        public EV3UltraSonicSensor(BrickPortSensor port):this(port, UltraSonicMode.Centimeter)
+        public EV3UltraSonicSensor(BrickPortSensor port):this(port, UltraSonicMode.Centimeter, 1000)
         { }
 
-        public EV3UltraSonicSensor(BrickPortSensor port, UltraSonicMode usmode)
+        public EV3UltraSonicSensor(BrickPortSensor port, UltraSonicMode usmode):this(port, usmode, 1000)
+        { }
+
+        public EV3UltraSonicSensor(BrickPortSensor port, UltraSonicMode usmode, int timeout)
         {
             brick = new Brick();
             Port = port;
@@ -33,24 +38,72 @@ namespace BrickPi.Sensors
             mode = usmode;
             brick.BrickPi.Sensor[(int)Port].Type = (BrickSensorType)BrickSensorType.EV3_US_M0;
             brick.SetupSensors();
-
+            timer = new Timer(UpdateSensor, this, TimeSpan.FromMilliseconds(timeout), TimeSpan.FromMilliseconds(timeout));
         }
 
-        private SensorNotificationBase notification;
+        private Timer timer = null;
+        private void StopTimerInternal()
+        {
+            if (timer != null)
+            {
+                timer.Dispose();
+                timer = null;
+            }
+        }
+        protected void OnPropertyChanged(string name)
+        {
+            PropertyChangedEventHandler handler = PropertyChanged;
+            if (handler != null)
+            {
+                handler(this, new PropertyChangedEventArgs(name));
+            }
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private int value;
+        private string valueAsString;
+
+        /// <summary>
+        /// Return the raw value of the sensor
+        /// </summary>
+        public int Value
+        {
+            get { return value; }
+            set
+            {
+                if (value != this.value)
+                {
+                    this.value = value;
+                    OnPropertyChanged(nameof(Value));
+                }
+            }
+        }
+
+        /// <summary>
+        /// Return the raw value  as a string of the sensor
+        /// </summary>
+        public string ValueAsString
+        {
+            get { return valueAsString; }
+            set
+            {
+                if (valueAsString != value)
+                {
+                    valueAsString = value;
+                    OnPropertyChanged(nameof(ValueAsString));
+                }
+            }
+        }
+
         /// <summary>
         /// Update the sensor and this will raised an event on the interface
         /// </summary>
-        public void UpdateSensor()
+        public void UpdateSensor(object state)
         {
-            notification.Value = ReadRaw();
-            notification.ValueAsString = ReadAsString();
+            Value = ReadRaw();
+            ValueAsString = ReadAsString();
         }
-
-        /// <summary>
-        /// Use this property when you want to get notification into a UI
-        /// </summary>
-        public SensorNotificationBase Notification
-        { get { return notification; } internal set { notification = value; } }
 
         /// <summary>
         /// Gets or sets the Gyro mode. 

@@ -71,15 +71,20 @@ namespace BrickPi
         /// <summary>
         /// Initialize the birck, create the strcture and setup the serial port
         /// </summary>
-        public Brick()
+        public Brick():this(null)
         {
-            if(brickPi == null)
+
+        }
+
+        public Brick(SerialDevice myserial)
+        {
+            if (brickPi == null)
                 brickPi = new BrickPiStruct();
-            if(serialPort == null)
-                SelectAndInitSerial().Wait();
+            if (serialPort == null)
+                SelectAndInitSerial(myserial).Wait();
             needSetup = true;
             if (!isThreadRunning)
-            { 
+            {
                 Start();
                 Task.Delay(100).Wait();
             }
@@ -89,21 +94,26 @@ namespace BrickPi
         /// Initialize the Serial port, the BrickPi 
         /// </summary>
         /// <returns></returns>
-        private async Task SelectAndInitSerial()
+        private async Task SelectAndInitSerial(SerialDevice myserial)
         {
             try
             {
-                string aqs = SerialDevice.GetDeviceSelector();
-                var dis = await DeviceInformation.FindAllAsync(aqs);
-
-                for (int i = 0; i < dis.Count; i++)
+                if (myserial == null)
                 {
-                    Debug.WriteLine(string.Format("Serial device found: {0}", dis[i].Id));               
-                    if (dis[i].Id.IndexOf("UART0") != -1)
+                    string aqs = SerialDevice.GetDeviceSelector();
+                    var dis = await DeviceInformation.FindAllAsync(aqs);
+
+                    for (int i = 0; i < dis.Count; i++)
                     {
-                        serialPort = await SerialDevice.FromIdAsync(dis[i].Id);
+                        Debug.WriteLine(string.Format("Serial device found: {0}", dis[i].Id));
+                        if (dis[i].Id.IndexOf("UART0") != -1)
+                        {
+                            serialPort = await SerialDevice.FromIdAsync(dis[i].Id);
+                        }
                     }
                 }
+                else
+                    serialPort = myserial;
                 if (serialPort!=null)
                 {
                     serialPort.BaudRate = 500000; //the communication speed with the 2 arduinos.

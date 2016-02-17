@@ -13,6 +13,8 @@
 
 using BrickPi.Extensions;
 using System;
+using System.ComponentModel;
+using System.Threading;
 
 namespace BrickPi.Sensors
 {
@@ -37,15 +39,16 @@ namespace BrickPi.Sensors
         /// </summary>
         Listen = BrickSensorType.EV3_US_M2, 
     };
-    public sealed class NXTUltraSonicSensor: ISensor
+    public sealed class NXTUltraSonicSensor: INotifyPropertyChanged, ISensor
     {
         private Brick brick = null;
         private UltraSonicMode sonarMode;
 
-        public NXTUltraSonicSensor(BrickPortSensor port):this(port, UltraSonicMode.Centimeter)
+        public NXTUltraSonicSensor(BrickPortSensor port):this(port, UltraSonicMode.Centimeter, 1000)
         { }
-
-        public NXTUltraSonicSensor(BrickPortSensor port, UltraSonicMode mode)
+        public NXTUltraSonicSensor(BrickPortSensor port, UltraSonicMode mode):this(port, mode, 1000)
+        { }
+        public NXTUltraSonicSensor(BrickPortSensor port, UltraSonicMode mode, int timeout)
         {
             brick = new Brick();
             Port = port;
@@ -54,29 +57,75 @@ namespace BrickPi.Sensors
             sonarMode = mode;
             brick.BrickPi.Sensor[(int)Port].Type = (BrickSensorType)BrickSensorType.ULTRASONIC_CONT;
             brick.SetupSensors();
-
+            timer = new Timer(UpdateSensor, this, TimeSpan.FromMilliseconds(timeout), TimeSpan.FromMilliseconds(timeout));
         }
+
+        private Timer timer = null;
+        private void StopTimerInternal()
+        {
+            if (timer != null)
+            {
+                timer.Dispose();
+                timer = null;
+            }
+        }
+        protected void OnPropertyChanged(string name)
+        {
+            PropertyChangedEventHandler handler = PropertyChanged;
+            if (handler != null)
+            {
+                handler(this, new PropertyChangedEventArgs(name));
+            }
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
 
         public BrickPortSensor Port
         {
             get; internal set;
         }
+        private int value;
+        private string valueAsString;
 
-        private SensorNotificationBase notification;
         /// <summary>
-        /// Update the sensor and this will raised an event on the interface
+        /// Return the raw value of the sensor
         /// </summary>
-        public void UpdateSensor()
+        public int Value
         {
-            notification.Value = ReadRaw();
-            notification.ValueAsString = ReadAsString();
+            get { return value; }
+            set
+            {
+                if (value != this.value)
+                {
+                    this.value = value;
+                    OnPropertyChanged(nameof(Value));
+                }
+            }
         }
 
         /// <summary>
-        /// Use this property when you want to get notification into a UI
+        /// Return the raw value  as a string of the sensor
         /// </summary>
-        public SensorNotificationBase Notification
-        { get { return notification; } internal set { notification = value; } }
+        public string ValueAsString
+        {
+            get { return valueAsString; }
+            set
+            {
+                if (valueAsString != value)
+                {
+                    valueAsString = value;
+                    OnPropertyChanged(nameof(ValueAsString));
+                }
+            }
+        }
+        /// <summary>
+        /// Update the sensor and this will raised an event on the interface
+        /// </summary>
+        public void UpdateSensor(object state)
+        {
+            Value = ReadRaw();
+            ValueAsString = ReadAsString();
+        }
 
         /// <summary>
         /// Gets or sets the sonar mode.

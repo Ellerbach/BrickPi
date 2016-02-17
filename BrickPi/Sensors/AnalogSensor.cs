@@ -13,43 +13,98 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace BrickPi.Sensors
 {
-    public sealed class AnalogSensor : ISensor
+    public sealed class AnalogSensor: INotifyPropertyChanged, ISensor
     {
-        private Brick brick = null;
+        private Brick brick = null;      
 
-        public AnalogSensor(BrickPortSensor port)
+        public AnalogSensor(BrickPortSensor port):this(port, 1000)
+        { }
+
+        public AnalogSensor(BrickPortSensor port, int timeout)
         {
             brick = new Brick();
             Port = port;
             brick.BrickPi.Sensor[(int)Port].Type = BrickSensorType.SENSOR_RAW;
             brick.SetupSensors();
+            timer = new Timer(UpdateSensor, this, TimeSpan.FromMilliseconds(timeout), TimeSpan.FromMilliseconds(timeout));
         }
+
+        private Timer timer = null;
+        private void StopTimerInternal()
+        {
+            if (timer != null)
+            {
+                timer.Dispose();
+                timer = null;
+            }
+        }
+
         public BrickPortSensor Port
         {
             get; internal set;
         }
 
-        private SensorNotificationBase notification;
+        protected void OnPropertyChanged(string name)
+        {
+            PropertyChangedEventHandler handler = PropertyChanged;
+            if (handler != null)
+            {
+                handler(this, new PropertyChangedEventArgs(name));
+            }
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
         /// <summary>
         /// Update the sensor and this will raised an event on the interface
         /// </summary>
-        public void UpdateSensor()
+        public void UpdateSensor(object state)
         {
-            notification.Value = ReadRaw();
-            notification.ValueAsString = ReadAsString();
+            Value = ReadRaw();
+            ValueAsString = ReadAsString();
+        }
+        private int value;
+        private string valueAsString;
+
+        /// <summary>
+        /// Return the raw value of the sensor
+        /// </summary>
+        public int Value
+        {
+            get { return value; }
+            set
+            {
+                if (value != this.value)
+                {
+                    this.value = value;
+                    OnPropertyChanged(nameof(Value));
+                }
+            }
         }
 
         /// <summary>
-        /// Use this property when you want to get notification into a UI
+        /// Return the raw value  as a string of the sensor
         /// </summary>
-        public SensorNotificationBase Notification
-        { get { return notification; } internal set { notification = value; } }
+        public string ValueAsString
+        {
+            get { return valueAsString; }
+            set
+            {
+                if (valueAsString != value)
+                {
+                    valueAsString = value;
+                    OnPropertyChanged(nameof(ValueAsString));
+                }
+            }
+        }
 
         public int ReadRaw()
         {

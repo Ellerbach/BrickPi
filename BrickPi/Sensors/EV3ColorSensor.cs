@@ -13,10 +13,12 @@
 
 using BrickPi.Extensions;
 using System;
+using System.ComponentModel;
+using System.Threading;
 
 namespace BrickPi.Sensors
 {
-    public sealed class EV3ColorSensor: ISensor
+    public sealed class EV3ColorSensor: INotifyPropertyChanged, ISensor
     {
         private Brick brick = null;
         private ColorSensorMode colorMode;
@@ -30,16 +32,38 @@ namespace BrickPi.Sensors
         public EV3ColorSensor(BrickPortSensor port):this(port,ColorSensorMode.Color)
         { }
 
-        public EV3ColorSensor(BrickPortSensor port, ColorSensorMode mode)
+        public EV3ColorSensor(BrickPortSensor port, ColorSensorMode mode):this(port, mode, 1000)
+        {  }
+
+        public EV3ColorSensor(BrickPortSensor port, ColorSensorMode mode, int timeout)
         {
             brick = new Brick();
             Port = port;
-            colorMode = mode;
-            brick.BrickPi.Sensor[(int)Port].Type = GetEV3Mode(mode);
+            brick.BrickPi.Sensor[(int)Port].Type = BrickSensorType.SENSOR_RAW;
             brick.SetupSensors();
-
+            timer = new Timer(UpdateSensor, this, TimeSpan.FromMilliseconds(timeout), TimeSpan.FromMilliseconds(timeout));
         }
 
+        private Timer timer = null;
+        private void StopTimerInternal()
+        {
+            if (timer != null)
+            {
+                timer.Dispose();
+                timer = null;
+            }
+        }
+
+        protected void OnPropertyChanged(string name)
+        {
+            PropertyChangedEventHandler handler = PropertyChanged;
+            if (handler != null)
+            {
+                handler(this, new PropertyChangedEventArgs(name));
+            }
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
         private BrickSensorType GetEV3Mode(ColorSensorMode mode)
         {
             BrickSensorType ret = BrickSensorType.EV3_COLOR_M0;
@@ -81,22 +105,48 @@ namespace BrickPi.Sensors
 
             
         }
+        private int value;
+        private string valueAsString;
 
-        private SensorNotificationBase notification;
         /// <summary>
-        /// Update the sensor and this will raised an event on the interface
+        /// Return the raw value of the sensor
         /// </summary>
-        public void UpdateSensor()
+        public int Value
         {
-            notification.Value = ReadRaw();
-            notification.ValueAsString = ReadAsString();
+            get { return value; }
+            set
+            {
+                if (value != this.value)
+                {
+                    this.value = value;
+                    OnPropertyChanged(nameof(Value));
+                }
+            }
         }
 
         /// <summary>
-        /// Use this property when you want to get notification into a UI
+        /// Return the raw value  as a string of the sensor
         /// </summary>
-        public SensorNotificationBase Notification
-        { get { return notification; } internal set { notification = value; } }
+        public string ValueAsString
+        {
+            get { return valueAsString; }
+            set
+            {
+                if (valueAsString != value)
+                {
+                    valueAsString = value;
+                    OnPropertyChanged(nameof(ValueAsString));
+                }
+            }
+        }
+        /// <summary>
+        /// Update the sensor and this will raised an event on the interface
+        /// </summary>
+        public void UpdateSensor(object state)
+        {
+            Value = ReadRaw();
+            ValueAsString = ReadAsString();
+        }
 
         private void GetRawValues()
         {

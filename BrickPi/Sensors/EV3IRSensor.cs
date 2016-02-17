@@ -13,6 +13,8 @@
 
 using BrickPi.Extensions;
 using System;
+using System.ComponentModel;
+using System.Threading;
 
 namespace BrickPi.Sensors
 {
@@ -74,43 +76,91 @@ namespace BrickPi.Sensors
 
     }
 
-    public sealed class EV3IRSensor: ISensor
+    public sealed class EV3IRSensor: INotifyPropertyChanged, ISensor
     {
         private Brick brick = null;
         private IRMode mode;
 
-        public EV3IRSensor(BrickPortSensor port) : this(port, IRMode.Proximity)
-		{
-
-        }
-
-        private SensorNotificationBase notification;
-        /// <summary>
-        /// Update the sensor and this will raised an event on the interface
-        /// </summary>
-        public void UpdateSensor()
-        {
-            notification.Value = ReadRaw();
-            notification.ValueAsString = ReadAsString();
-        }
-
-        /// <summary>
-        /// Use this property when you want to get notification into a UI
-        /// </summary>
-        public SensorNotificationBase Notification
-        { get { return notification; } internal set { notification = value; } }
+        public EV3IRSensor(BrickPortSensor port) : this(port, IRMode.Proximity, 1000)
+		{ }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MonoBrick.EV3.IRSensor"/> class.
         /// </summary>
         /// <param name="mode">Mode.</param>
-        public EV3IRSensor(BrickPortSensor port, IRMode mode)
+        public EV3IRSensor(BrickPortSensor port, IRMode mode):this(port, mode, 1000)
+        { }
+
+        public EV3IRSensor(BrickPortSensor port, IRMode mode, int timeout)
         {
             brick = new Brick();
             Mode = mode;
             Channel = IRChannel.One;
             brick.BrickPi.Sensor[(int)Port].Type = (BrickSensorType)mode;
             brick.SetupSensors();
+            timer = new Timer(UpdateSensor, this, TimeSpan.FromMilliseconds(timeout), TimeSpan.FromMilliseconds(timeout));
+        }
+
+        private Timer timer = null;
+        private void StopTimerInternal()
+        {
+            if (timer != null)
+            {
+                timer.Dispose();
+                timer = null;
+            }
+        }
+        protected void OnPropertyChanged(string name)
+        {
+            PropertyChangedEventHandler handler = PropertyChanged;
+            if (handler != null)
+            {
+                handler(this, new PropertyChangedEventArgs(name));
+            }
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        private int value;
+        private string valueAsString;
+
+        /// <summary>
+        /// Return the raw value of the sensor
+        /// </summary>
+        public int Value
+        {
+            get { return value; }
+            set
+            {
+                if (value != this.value)
+                {
+                    this.value = value;
+                    OnPropertyChanged(nameof(Value));
+                }
+            }
+        }
+
+        /// <summary>
+        /// Return the raw value  as a string of the sensor
+        /// </summary>
+        public string ValueAsString
+        {
+            get { return valueAsString; }
+            set
+            {
+                if (valueAsString != value)
+                {
+                    valueAsString = value;
+                    OnPropertyChanged(nameof(ValueAsString));
+                }
+            }
+        }
+        /// <summary>
+        /// Update the sensor and this will raised an event on the interface
+        /// </summary>
+        public void UpdateSensor(object state)
+        {
+            Value = ReadRaw();
+            ValueAsString = ReadAsString();
         }
 
         /// <summary>

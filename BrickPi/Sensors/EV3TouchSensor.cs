@@ -11,9 +11,13 @@
 //
 //////////////////////////////////////////////////////////
 
+using System;
+using System.ComponentModel;
+using System.Threading;
+
 namespace BrickPi.Sensors
 {
-    public sealed class EV3TouchSensor : ISensor
+    public sealed class EV3TouchSensor : INotifyPropertyChanged, ISensor
     {
         private Brick brick = null;
         // in the BrickPi source code, this value is 1020
@@ -23,29 +27,78 @@ namespace BrickPi.Sensors
         /// Initialise a new EV3 Touch sensor
         /// </summary>
         /// <param name="port">Port where the NXT sensor is plugged</param>
-        public EV3TouchSensor(BrickPortSensor port)
+        public EV3TouchSensor(BrickPortSensor port):this(port, 1000)
+        { }
+        public EV3TouchSensor(BrickPortSensor port, int timeout)
         {
             brick = new Brick();
             Port = port;
             brick.BrickPi.Sensor[(int)Port].Type = BrickSensorType.EV3_TOUCH_0;
             brick.SetupSensors();
+            timer = new Timer(UpdateSensor, this, TimeSpan.FromMilliseconds(timeout), TimeSpan.FromMilliseconds(timeout));
         }
 
-        private SensorNotificationBase notification;
+        private Timer timer = null;
+        private void StopTimerInternal()
+        {
+            if (timer != null)
+            {
+                timer.Dispose();
+                timer = null;
+            }
+        }
+        protected void OnPropertyChanged(string name)
+        {
+            PropertyChangedEventHandler handler = PropertyChanged;
+            if (handler != null)
+            {
+                handler(this, new PropertyChangedEventArgs(name));
+            }
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        private int value;
+        private string valueAsString;
+
+        /// <summary>
+        /// Return the raw value of the sensor
+        /// </summary>
+        public int Value
+        {
+            get { return value; }
+            set
+            {
+                if (value != this.value)
+                {
+                    this.value = value;
+                    OnPropertyChanged(nameof(Value));
+                }
+            }
+        }
+
+        /// <summary>
+        /// Return the raw value  as a string of the sensor
+        /// </summary>
+        public string ValueAsString
+        {
+            get { return valueAsString; }
+            set
+            {
+                if (valueAsString != value)
+                {
+                    valueAsString = value;
+                    OnPropertyChanged(nameof(ValueAsString));
+                }
+            }
+        }
         /// <summary>
         /// Update the sensor and this will raised an event on the interface
         /// </summary>
-        public void UpdateSensor()
+        public void UpdateSensor(object state)
         {
-            notification.Value = ReadRaw();
-            notification.ValueAsString = ReadAsString();
+            Value = ReadRaw();
+            ValueAsString = ReadAsString();
         }
-
-        /// <summary>
-        /// Use this property when you want to get notification into a UI
-        /// </summary>
-        public SensorNotificationBase Notification
-        { get { return notification; } internal set { notification = value; } }
 
         /// <summary>
         /// Reads the sensor value as a string.
@@ -56,10 +109,10 @@ namespace BrickPi.Sensors
             string s = "";
             if (IsPressed())
             {
-                s = "Pressed";
+                s = "Not pressed";
             }
             else {
-                s = "Not pressed";
+                s = "Pressed";
             }
             return s;
         }

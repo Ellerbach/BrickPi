@@ -11,40 +11,93 @@
 //
 //////////////////////////////////////////////////////////
 
+using System;
+using System.ComponentModel;
+using System.Threading;
+
 namespace BrickPi.Sensors
 {
-    public sealed class NXTSoundSensor : ISensor
+    public sealed class NXTSoundSensor : INotifyPropertyChanged, ISensor
     {
         private Brick brick = null;
         private const int NXTCutoff = 512;
 
+        public NXTSoundSensor(BrickPortSensor port):this(port, 1000)
+        { }
         /// <summary>
         /// Initialise a new NXT Touch sensor
         /// </summary>
         /// <param name="port">Port where the NXT sensor is plugged</param>
-        public NXTSoundSensor(BrickPortSensor port)
+        public NXTSoundSensor(BrickPortSensor port, int timeout)
         {
             brick = new Brick();
             Port = port;
             brick.BrickPi.Sensor[(int)Port].Type = (byte)BrickSensorType.SENSOR_RAW;
             brick.SetupSensors();
+            timer = new Timer(UpdateSensor, this, TimeSpan.FromMilliseconds(timeout), TimeSpan.FromMilliseconds(timeout));
         }
 
-        private SensorNotificationBase notification;
+        private Timer timer = null;
+        private void StopTimerInternal()
+        {
+            if (timer != null)
+            {
+                timer.Dispose();
+                timer = null;
+            }
+        }
+        protected void OnPropertyChanged(string name)
+        {
+            PropertyChangedEventHandler handler = PropertyChanged;
+            if (handler != null)
+            {
+                handler(this, new PropertyChangedEventArgs(name));
+            }
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        private int value;
+        private string valueAsString;
+
+        /// <summary>
+        /// Return the raw value of the sensor
+        /// </summary>
+        public int Value
+        {
+            get { return value; }
+            set
+            {
+                if (value != this.value)
+                {
+                    this.value = value;
+                    OnPropertyChanged(nameof(Value));
+                }
+            }
+        }
+
+        /// <summary>
+        /// Return the raw value  as a string of the sensor
+        /// </summary>
+        public string ValueAsString
+        {
+            get { return valueAsString; }
+            set
+            {
+                if (valueAsString != value)
+                {
+                    valueAsString = value;
+                    OnPropertyChanged(nameof(ValueAsString));
+                }
+            }
+        }
         /// <summary>
         /// Update the sensor and this will raised an event on the interface
         /// </summary>
-        public void UpdateSensor()
+        public void UpdateSensor(object state)
         {
-            notification.Value = ReadRaw();
-            notification.ValueAsString = ReadAsString();
+            Value = ReadRaw();
+            ValueAsString = ReadAsString();
         }
-
-        /// <summary>
-        /// Use this property when you want to get notification into a UI
-        /// </summary>
-        public SensorNotificationBase Notification
-        { get { return notification; } internal set { notification = value; } }
 
         /// <summary>
         /// Reads the sensor value as a string.
