@@ -11,178 +11,21 @@
 //
 //////////////////////////////////////////////////////////
 
-//TODO: clean the test functions form here, move to another project
-
-using BrickPi.Movement;
+using BrickPi;
 using BrickPi.Sensors;
+using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
+using Windows.UI.Xaml.Controls;
 
-namespace BrickPi
+namespace BrickPiTests
 {
-    partial class StartupTask
+    public sealed partial class MainPage : Page
     {
-        private async Task TestMotor1Motor()
-        {
-            Motor motor = new Motor(BrickPortMotor.PORT_D);
-            motor.SetSpeed(10);
-            motor.Start();
-            Stopwatch stopwatch = Stopwatch.StartNew();
-            long initialTick = stopwatch.ElapsedTicks;
-            double desiredTicks = 10000.0 / 1000.0 * Stopwatch.Frequency;
-            double finalTick = initialTick + desiredTicks;
-            while (stopwatch.ElapsedTicks < finalTick)
-            {
-                Debug.WriteLine(string.Format("Encoder: {0}", motor.GetTachoCount()));
-                await Task.Delay(200);
-                motor.SetSpeed(motor.GetSpeed() + 10);
-
-            }
-            motor.SetPolarity(Polarity.OppositeDirection);
-            desiredTicks = 10000.0 / 1000.0 * Stopwatch.Frequency;
-            finalTick = stopwatch.ElapsedTicks + desiredTicks;
-            while (stopwatch.ElapsedTicks < finalTick)
-            {
-                Debug.WriteLine(string.Format("Encoder: {0}", motor.GetTachoCount()));
-                await Task.Delay(200);
-                motor.SetSpeed(motor.GetSpeed() + 10);
-            }
-            desiredTicks = 10000.0 / 1000.0 * Stopwatch.Frequency;
-            finalTick = stopwatch.ElapsedTicks + desiredTicks;
-            int pos = 0;
-            while (stopwatch.ElapsedTicks < finalTick)
-            {
-                Debug.WriteLine(string.Format("Encoder: {0}", motor.GetTachoCount()));
-                await Task.Delay(200);
-                motor.SetTachoCount(pos);
-                pos += 100;
-            }
-            motor.Stop();
-            //int port = (int)BrickPortMotor.PORT_D;
-            //brick.BrickPi.MotorEnable[port] = 1;
-            //brick.SetupSensors();
-            //brick.BrickPi.MotorSpeed[port] = 200;
-            //Stopwatch stopwatch = Stopwatch.StartNew();
-            //long initialTick = stopwatch.ElapsedTicks;
-            //long initialElapsed = stopwatch.ElapsedMilliseconds;
-            //double desiredTicks = 10000.0 / 1000.0 * Stopwatch.Frequency;
-            //double finalTick = initialTick + desiredTicks;
-            //while (stopwatch.ElapsedTicks < finalTick)
-            //{
-            //    Debug.WriteLine(string.Format("Encoder: {0}", brick.BrickPi.Encoder[port]));
-            //    await Task.Delay(200);
-            //}
-            //brick.BrickPi.MotorSpeed[3] = -100;
-            //desiredTicks = 10000.0 / 1000.0 * Stopwatch.Frequency;
-            //finalTick = stopwatch.ElapsedTicks + desiredTicks;
-            //while (stopwatch.ElapsedTicks < finalTick)
-            //{
-            //    Debug.WriteLine(string.Format("Encoder: {0}", brick.BrickPi.Encoder[port]));
-            //    await Task.Delay(200);
-            //}
-            //brick.BrickPi.MotorSpeed[port] = 0;
-            //brick.BrickPi.MotorEnable[port] = 0;
-
-            // brick.UpdateValues();
-        }
-
-        private async Task TestMotorBrick()
-        {
-            int port = (int)BrickPortMotor.PORT_D;
-            brick.BrickPi.Motor[port].Enable = 1;
-            brick.SetupSensors();
-            brick.BrickPi.Motor[port].Speed = 200;
-            Stopwatch stopwatch = Stopwatch.StartNew();
-            long initialTick = stopwatch.ElapsedTicks;
-            long initialElapsed = stopwatch.ElapsedMilliseconds;
-            double desiredTicks = 10000.0 / 1000.0 * Stopwatch.Frequency;
-            double finalTick = initialTick + desiredTicks;
-            while (stopwatch.ElapsedTicks < finalTick)
-            {
-                Debug.WriteLine(string.Format("Encoder: {0}", brick.BrickPi.Motor[port].Encoder));
-                await Task.Delay(200);
-            }
-            brick.BrickPi.Motor[port].Speed = -100;
-            desiredTicks = 10000.0 / 1000.0 * Stopwatch.Frequency;
-            finalTick = stopwatch.ElapsedTicks + desiredTicks;
-            while (stopwatch.ElapsedTicks < finalTick)
-            {
-                Debug.WriteLine(string.Format("Encoder: {0}", brick.BrickPi.Motor[port].Encoder));
-                await Task.Delay(200);
-            }
-            brick.BrickPi.Motor[port].Speed = 0;
-            brick.BrickPi.Motor[port].Enable = 0;
-
-            brick.UpdateValues();
-
-        }
-
-        private async Task TestMotor()
-        {
-            Motor[] motor = new Motor[3];
-            motor[0] = new Motor(BrickPortMotor.PORT_D);
-            motor[1] = new Motor(BrickPortMotor.PORT_A);
-            motor[2] = new Motor(BrickPortMotor.PORT_C);
-            for (int i = 0; i < motor.Length; i++)
-            {
-                motor[i].SetSpeed(0);
-                motor[i].Start();
-            }
-            Stopwatch stopwatch = Stopwatch.StartNew();
-            long initialTick = stopwatch.ElapsedTicks;
-            double desiredTicks = 10000.0 / 1000.0 * Stopwatch.Frequency;
-            double finalTick = initialTick + desiredTicks;
-            while (stopwatch.ElapsedTicks < finalTick)
-            {
-                for (int i = 0; i < motor.Length; i++)
-                {
-                    Debug.WriteLine(string.Format("Encoder motor {0}: {1}", i, motor[i].GetTachoCount()));
-                    motor[i].SetSpeed(motor[i].GetSpeed() + 1);
-                }
-                await Task.Delay(200);
-            }
-            Debug.WriteLine("End speed increase");
-            for (int i = 0; i < motor.Length; i++)
-            {
-                motor[i].SetPolarity(Polarity.OppositeDirection);
-            }
-            Debug.WriteLine("End of inverting rotation");
-            desiredTicks = 10000.0 / 1000.0 * Stopwatch.Frequency;
-            finalTick = stopwatch.ElapsedTicks + desiredTicks;
-            while (stopwatch.ElapsedTicks < finalTick)
-            {
-                for (int i = 0; i < motor.Length; i++)
-                {
-                    Debug.WriteLine(string.Format("Encoder motor {0}: {1}", i, motor[i].GetTachoCount()));
-                    motor[i].SetSpeed(motor[i].GetSpeed() + 5);
-                }
-                await Task.Delay(200);
-                    
-            }
-            Debug.WriteLine("End speed decrease");
-            desiredTicks = 10000.0 / 1000.0 * Stopwatch.Frequency;
-            finalTick = stopwatch.ElapsedTicks + desiredTicks;
-            int pos = 0;
-            while (stopwatch.ElapsedTicks < finalTick)
-            {
-                for (int i = 0; i < motor.Length; i++)
-                {
-                    Debug.WriteLine(string.Format("Encoder motor {0}: {1}", i, motor[i].GetTachoCount()));
-                    motor[i].SetTachoCount(pos);
-                }
-                await Task.Delay(200);
-                    
-                pos ++;
-            }
-            Debug.WriteLine("End encoder offset test");
-            for (int i = 0; i < motor.Length; i++)
-            {
-                motor[i].Stop();
-            }
-            Debug.WriteLine("All motors stoped");
-        }
-
-        private async Task TestbuttonBrcikPi()
+        private async Task TestMultipleSensorsDirctBrickStruct()
         {
             brick.BrickPi.Sensor[0].Type = BrickSensorType.EV3_TOUCH_0;
             brick.BrickPi.Sensor[1].Type = BrickSensorType.ULTRASONIC_CONT;
@@ -205,7 +48,7 @@ namespace BrickPi
             }
         }
 
-        private async Task TestbuttonTouchCSSoud()
+        private async Task TestMultipleSensorsTouchCSSoud()
         {
             NXTTouchSensor touch = new NXTTouchSensor(BrickPortSensor.PORT_S2);
             EV3TouchSensor ev3Touch = new EV3TouchSensor(BrickPortSensor.PORT_S1);
@@ -223,19 +66,19 @@ namespace BrickPi
                 rgb = nxtlight.ReadRGBColor();
                 Debug.WriteLine(string.Format("Color: {0}, Red: {1}, Green: {2}, Blue: {3}",
                     nxtlight.ReadColor(), rgb.Red, rgb.Green, rgb.Blue));
-//                Debug.WriteLine(string.Format("raw {0}", nxtlight.ReadTest()));
+                //                Debug.WriteLine(string.Format("raw {0}", nxtlight.ReadTest()));
                 await Task.Delay(300);
                 if ((touch.IsPressed()) && ev3Touch.IsPressed())
                     bwait = false;
             }
         }
 
-        private async Task TestbuttonEV3Color()
+        private async Task TestEV3Color()
         {
             EV3ColorSensor nxtlight = new EV3ColorSensor(BrickPortSensor.PORT_S4, ColorSensorMode.Reflection);
             RGBColor rgb;
-            for (int i=0; i<nxtlight.NumberOfModes(); i++)
-            { 
+            for (int i = 0; i < nxtlight.NumberOfModes(); i++)
+            {
                 int count = 0;
                 while (count < 100)
                 {
@@ -257,7 +100,7 @@ namespace BrickPi
 
         }
         //EV3IRSensor
-        private async Task TestbuttonIRSensor()
+        private async Task TestIRSensor()
         {
 
             EV3IRSensor ultra = new EV3IRSensor(BrickPortSensor.PORT_S4, IRMode.Remote);
@@ -269,21 +112,20 @@ namespace BrickPi
                     Debug.WriteLine(string.Format("NXT ultra, Distance: {0}, ReadAsString: {1}, NumberNodes: {2}, SensorName: {3}",
                         ultra.ReadBeaconLocation(), ultra.ReadAsString(), ultra.Mode, ultra.GetSensorName()));
                     await Task.Delay(300);
-                }   
+                }
                 ultra.SelectNextMode();
             }
         }
 
         //TODO build test for EV3 Ultra Sound
 
-        private async Task TestbuttonNEXTUS()
+        private async Task TestNXTUS()
         {
-            TestbuttonNXTLight();
             NXTUltraSonicSensor ultra = new NXTUltraSonicSensor(BrickPortSensor.PORT_S3);
-            for(int i =0; i<ultra.NumberOfModes(); i++)
-            { 
+            for (int i = 0; i < ultra.NumberOfModes(); i++)
+            {
                 int count = 0;
-                while (count<100)
+                while (count < 100)
                 {
                     Debug.WriteLine(string.Format("NXT Touch, Distance: {0}, ReadAsString: {1}, NumberNodes: {2}, SensorName: {3}",
                         ultra.ReadDistance(), ultra.ReadAsString(), ultra.NumberOfModes(), ultra.GetSensorName()));
@@ -293,14 +135,14 @@ namespace BrickPi
             }
         }
 
-        private async Task TestbuttonNXTLight()
+        private async Task TestNXTLight()
         {
             //NXTTouchSensor touch = new NXTTouchSensor(BrickPortSensor.PORT_S2);
             //EV3TouchSensor ev3Touch = new EV3TouchSensor(BrickPortSensor.PORT_S1);
             //NXTSoundSensor sound = new NXTSoundSensor(BrickPortSensor.PORT_S4);
             NXTLightSensor nxtlight = new NXTLightSensor(BrickPortSensor.PORT_S4);
             int count = 0;
-            while (count<100)
+            while (count < 100)
             {
                 //Debug.WriteLine(string.Format("NXT Touch, Raw: {0}, ReadASString: {1}, IsPressed: {2}, NumberNodes: {3}, SensorName: {4}", touch.ReadRaw(), touch.ReadAsString(), touch.IsPressed(), touch.NumberOfModes(), touch.GetSensorName()));
                 //Debug.WriteLine(string.Format("EV3 Touch, Raw: {0}, ReadASString: {1}, IsPressed: {2}, NumberNodes: {3}, SensorName: {4}", ev3Touch.ReadRaw(), ev3Touch.ReadAsString(), ev3Touch.IsPressed(), ev3Touch.NumberOfModes(), ev3Touch.GetSensorName()));
@@ -331,5 +173,7 @@ namespace BrickPi
                 count++;
             }
         }
+
+        //TODO: build other sensor tests
     }
 }

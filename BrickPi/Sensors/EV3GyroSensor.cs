@@ -41,12 +41,27 @@ namespace BrickPi.Sensors
         private Brick brick = null;
         private GyroMode gmode;
 
+        /// <summary>
+        /// Initialize an EV3 Gyro Sensor
+        /// </summary>
+        /// <param name="port">Sensor port</param>
         public EV3GyroSensor(BrickPortSensor port):this(port, GyroMode.Angle)
         { }
 
+        /// <summary>
+        /// Initialize an EV3 Gyro Sensor
+        /// </summary>
+        /// <param name="port">Sensor port</param>
+        /// <param name="mode">Gyro mode</param>
         public EV3GyroSensor(BrickPortSensor port, GyroMode mode):this(port, mode, 1000)
         { }
 
+        /// <summary>
+        /// Initialize an EV3 Gyro Sensor
+        /// </summary>
+        /// <param name="port">Sensor port</param>
+        /// <param name="mode">Gyro mode</param>
+        /// <param name="timeout">Period in millisecond to check sensor value changes</param>
         public EV3GyroSensor(BrickPortSensor port, GyroMode mode, int timeout)
         {
             brick = new Brick();
@@ -54,6 +69,7 @@ namespace BrickPi.Sensors
             gmode = mode;
             brick.BrickPi.Sensor[(int)Port].Type = (BrickSensorType)mode;
             brick.SetupSensors();
+            periodRefresh = timeout;
             timer = new Timer(UpdateSensor, this, TimeSpan.FromMilliseconds(timeout), TimeSpan.FromMilliseconds(timeout));
         }
 
@@ -82,8 +98,8 @@ namespace BrickPi.Sensors
         /// </summary>
         public int Value
         {
-            get { return value; }
-            set
+            get { return ReadRaw(); }
+            internal set
             {
                 if (value != this.value)
                 {
@@ -98,8 +114,8 @@ namespace BrickPi.Sensors
         /// </summary>
         public string ValueAsString
         {
-            get { return valueAsString; }
-            set
+            get { return ReadAsString(); }
+            internal set
             {
                 if (valueAsString != value)
                 {

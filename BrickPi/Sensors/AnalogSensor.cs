@@ -25,15 +25,25 @@ namespace BrickPi.Sensors
     {
         private Brick brick = null;      
 
+        /// <summary>
+        /// Initialize an Analog Sensor
+        /// </summary>
+        /// <param name="port">Sensor port</param>
         public AnalogSensor(BrickPortSensor port):this(port, 1000)
         { }
 
+        /// <summary>
+        /// Initialize an Analog Sensor
+        /// </summary>
+        /// <param name="port">Sensor port</param>
+        /// <param name="timeout">Period in millisecond to check sensor value changes</param>
         public AnalogSensor(BrickPortSensor port, int timeout)
         {
             brick = new Brick();
             Port = port;
             brick.BrickPi.Sensor[(int)Port].Type = BrickSensorType.SENSOR_RAW;
             brick.SetupSensors();
+            periodRefresh = timeout;
             timer = new Timer(UpdateSensor, this, TimeSpan.FromMilliseconds(timeout), TimeSpan.FromMilliseconds(timeout));
         }
 
@@ -95,7 +105,7 @@ namespace BrickPi.Sensors
         /// </summary>
         public int Value
         {
-            get { return value; }
+            get { return ReadRaw(); }
             set
             {
                 if (value != this.value)
@@ -111,7 +121,7 @@ namespace BrickPi.Sensors
         /// </summary>
         public string ValueAsString
         {
-            get { return valueAsString; }
+            get { return ReadAsString(); }
             set
             {
                 if (valueAsString != value)

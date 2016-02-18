@@ -17,8 +17,6 @@ using Windows.ApplicationModel.Background;
 
 namespace BrickPi
 {
-
-
     public sealed partial class StartupTask : IBackgroundTask
     {
         /// <summary>
@@ -34,13 +32,6 @@ namespace BrickPi
                 service = taskInstance.GetDeferral();
 
             brick = new Brick();
-
-            // Just for test. Cahnge it
-            //while(true)
-            //{
-            //    TestMotor().Wait();
-            //    //Testbutton().Wait();
-            //}
         }
 
         private void TaskInstance_Canceled(IBackgroundTaskInstance sender, BackgroundTaskCancellationReason reason)

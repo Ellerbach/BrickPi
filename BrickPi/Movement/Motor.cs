@@ -13,6 +13,7 @@
 
 using System;
 using System.ComponentModel;
+using System.Threading;
 
 namespace BrickPi.Movement
 {
@@ -27,16 +28,28 @@ namespace BrickPi.Movement
 #pragma warning restore
     };
 
-    public sealed class Motor 
+    /// <summary>
+    /// This class contains a motor object and all needed functions and properties to pilot it
+    /// </summary>
+    public sealed class Motor : INotifyPropertyChanged
     {
         // represent the Brick
         private Brick brick = null;
 
-        public Motor(BrickPortMotor port)
+        /// <summary>
+        /// Create a motor
+        /// </summary>
+        /// <param name="port">Motor port</param>
+        public Motor(BrickPortMotor port):this(port, 1000)
+        { }
+
+        public Motor(BrickPortMotor port, int timeout)
         {
             brick = new Brick();
             Port = port;
             brick.Start();
+            periodRefresh = timeout;
+            timer = new Timer(UpdateSensor, this, TimeSpan.FromMilliseconds(timeout), TimeSpan.FromMilliseconds(timeout));
         }
 
         /// <summary>
@@ -56,11 +69,11 @@ namespace BrickPi.Movement
         }
 
         /// <summary>
-        /// Set Encoder offste
-        /// TBD: need to be tested and see impact, not sure about implementation
+        /// Set Tachometer encoder offset
+        /// Use this to reset or setup a specific position
         /// </summary>
-        /// <param name="position">new offset</param>
-        public void SetPosition(Int32 position)
+        /// <param name="position">New offset, 0 to reset</param>
+        public void SetTachoCount(Int32 position)
         {
             brick.BrickPi.Motor[(int)Port].EncoderOffset = position;
         }
@@ -138,7 +151,7 @@ namespace BrickPi.Movement
         /// speed is between -255 and +255
         /// </summary>
         public int Speed
-        { get { return GetSpeed();  } set { SetSpeed(value);  } }
+        { get { return GetSpeed(); } set { SetSpeed(value); } }
 
         public BrickPortMotor Port { get; internal set; }
 
@@ -151,7 +164,59 @@ namespace BrickPi.Movement
             }
         }
 
+        /// <summary>
+        /// To notify a property has changed. The minimum time can be set up
+        /// with timeout property
+        /// </summary>
         public event PropertyChangedEventHandler PropertyChanged;
+
+        private int periodRefresh;
+        /// <summary>
+        /// Period to refresh the notification of property changed in milliseconds
+        /// </summary>
+        public int PeriodRefresh
+        {
+            get { return periodRefresh; }
+            set
+            {
+                periodRefresh = value;
+                timer.Change(TimeSpan.FromMilliseconds(periodRefresh), TimeSpan.FromMilliseconds(periodRefresh));
+            }
+        }
+
+        /// <summary>
+        /// Update the sensor and this will raised an event on the interface
+        /// </summary>
+        public void UpdateSensor(object state)
+        {
+            TachoCount = GetTachoCount();
+        }
+
+        private int tacho;
+        /// <summary>
+        /// Tacho count as a property, events are rasied when value is changing
+        /// </summary>
+        public int TachoCount
+        {
+            get { return GetTachoCount(); }
+            internal set {
+                if (tacho != value)
+                {
+                    tacho = value;
+                    OnPropertyChanged(nameof(TachoCount));
+                }
+            }
+        }
+
+        private Timer timer = null;
+        private void StopTimerInternal()
+        {
+            if (timer != null)
+            {
+                timer.Dispose();
+                timer = null;
+            }
+        }
 
     }
 }

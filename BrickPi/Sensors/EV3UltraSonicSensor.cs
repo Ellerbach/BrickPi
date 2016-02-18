@@ -23,12 +23,27 @@ namespace BrickPi.Sensors
         private Brick brick = null;
         private UltraSonicMode mode;
 
+        /// <summary>
+        /// Initialize an EV3 Ulrasonic sensor
+        /// </summary>
+        /// <param name="port">Sensor port</param>
         public EV3UltraSonicSensor(BrickPortSensor port):this(port, UltraSonicMode.Centimeter, 1000)
         { }
 
+        /// <summary>
+        /// Initialize an EV3 Ultrasonic sensor
+        /// </summary>
+        /// <param name="port">Sensor mode</param>
+        /// <param name="usmode">Ultrasonic mode</param>
         public EV3UltraSonicSensor(BrickPortSensor port, UltraSonicMode usmode):this(port, usmode, 1000)
         { }
 
+        /// <summary>
+        /// Initialize an EV3 Ultrasonic Sensor
+        /// </summary>
+        /// <param name="port">Sensor port</param>
+        /// <param name="usmode">Ultrasonic mode</param>
+        /// <param name="timeout">Period in millisecond to check sensor value changes</param>
         public EV3UltraSonicSensor(BrickPortSensor port, UltraSonicMode usmode, int timeout)
         {
             brick = new Brick();
@@ -38,6 +53,7 @@ namespace BrickPi.Sensors
             mode = usmode;
             brick.BrickPi.Sensor[(int)Port].Type = (BrickSensorType)BrickSensorType.EV3_US_M0;
             brick.SetupSensors();
+            periodRefresh = timeout;
             timer = new Timer(UpdateSensor, this, TimeSpan.FromMilliseconds(timeout), TimeSpan.FromMilliseconds(timeout));
         }
 
@@ -87,8 +103,8 @@ namespace BrickPi.Sensors
         /// </summary>
         public int Value
         {
-            get { return value; }
-            set
+            get { return ReadRaw(); }
+            internal set
             {
                 if (value != this.value)
                 {
@@ -103,8 +119,8 @@ namespace BrickPi.Sensors
         /// </summary>
         public string ValueAsString
         {
-            get { return valueAsString; }
-            set
+            get { return ReadAsString(); }
+            internal set
             {
                 if (valueAsString != value)
                 {

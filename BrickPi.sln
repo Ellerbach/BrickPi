@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BrickPi", "BrickPi\BrickPi.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BrickPiExample", "BrickPiExample\BrickPiExample.csproj", "{DC6491E5-476E-407A-A7AA-2E1A9F1F3973}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BrickPiTests", "BrickPiTests\BrickPiTests.csproj", "{F3447090-3EC6-4267-8DD9-27EE834E3977}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|ARM = Debug|ARM
@@ -53,6 +55,24 @@ Global
 		{DC6491E5-476E-407A-A7AA-2E1A9F1F3973}.Release|x86.ActiveCfg = Release|x86
 		{DC6491E5-476E-407A-A7AA-2E1A9F1F3973}.Release|x86.Build.0 = Release|x86
 		{DC6491E5-476E-407A-A7AA-2E1A9F1F3973}.Release|x86.Deploy.0 = Release|x86
+		{F3447090-3EC6-4267-8DD9-27EE834E3977}.Debug|ARM.ActiveCfg = Debug|ARM
+		{F3447090-3EC6-4267-8DD9-27EE834E3977}.Debug|ARM.Build.0 = Debug|ARM
+		{F3447090-3EC6-4267-8DD9-27EE834E3977}.Debug|ARM.Deploy.0 = Debug|ARM
+		{F3447090-3EC6-4267-8DD9-27EE834E3977}.Debug|x64.ActiveCfg = Debug|x64
+		{F3447090-3EC6-4267-8DD9-27EE834E3977}.Debug|x64.Build.0 = Debug|x64
+		{F3447090-3EC6-4267-8DD9-27EE834E3977}.Debug|x64.Deploy.0 = Debug|x64
+		{F3447090-3EC6-4267-8DD9-27EE834E3977}.Debug|x86.ActiveCfg = Debug|x86
+		{F3447090-3EC6-4267-8DD9-27EE834E3977}.Debug|x86.Build.0 = Debug|x86
+		{F3447090-3EC6-4267-8DD9-27EE834E3977}.Debug|x86.Deploy.0 = Debug|x86
+		{F3447090-3EC6-4267-8DD9-27EE834E3977}.Release|ARM.ActiveCfg = Release|ARM
+		{F3447090-3EC6-4267-8DD9-27EE834E3977}.Release|ARM.Build.0 = Release|ARM
+		{F3447090-3EC6-4267-8DD9-27EE834E3977}.Release|ARM.Deploy.0 = Release|ARM
+		{F3447090-3EC6-4267-8DD9-27EE834E3977}.Release|x64.ActiveCfg = Release|x64
+		{F3447090-3EC6-4267-8DD9-27EE834E3977}.Release|x64.Build.0 = Release|x64
+		{F3447090-3EC6-4267-8DD9-27EE834E3977}.Release|x64.Deploy.0 = Release|x64
+		{F3447090-3EC6-4267-8DD9-27EE834E3977}.Release|x86.ActiveCfg = Release|x86
+		{F3447090-3EC6-4267-8DD9-27EE834E3977}.Release|x86.Build.0 = Release|x86
+		{F3447090-3EC6-4267-8DD9-27EE834E3977}.Release|x86.Deploy.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

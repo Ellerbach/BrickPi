@@ -40,12 +40,27 @@ namespace BrickPi.Sensors
         private LightMode lightMode;
         private Brick brick = null;
 
+        /// <summary>
+        /// Initialize a NXT Light Sensor
+        /// </summary>
+        /// <param name="port">Sensor port</param>
         public NXTLightSensor(BrickPortSensor port):this(port, LightMode.Relection, 1000)
         { }
 
+        /// <summary>
+        /// Initialize a NXT Light Sensor
+        /// </summary>
+        /// <param name="port">Sensor port</param>
+        /// <param name="mode">Light mode</param>
         public NXTLightSensor(BrickPortSensor port, LightMode mode):this(port, mode, 1000)
         { }
 
+        /// <summary>
+        /// Initialize a NXT Light Sensor
+        /// </summary>
+        /// <param name="port">Sensor port</param>
+        /// <param name="mode">Light mode</param>
+        /// <param name="timeout">Period in millisecond to check sensor value changes</param>
         public NXTLightSensor(BrickPortSensor port, LightMode mode, int timeout)
         {
             brick = new Brick();
@@ -54,6 +69,7 @@ namespace BrickPi.Sensors
             CutOff = 512;
             brick.BrickPi.Sensor[(int)Port].Type = (BrickSensorType)mode;
             brick.SetupSensors();
+            periodRefresh = timeout;
             timer = new Timer(UpdateSensor, this, TimeSpan.FromMilliseconds(timeout), TimeSpan.FromMilliseconds(timeout));
         }
 
@@ -102,8 +118,8 @@ namespace BrickPi.Sensors
         /// </summary>
         public int Value
         {
-            get { return value; }
-            set
+            get { return ReadRaw(); }
+            internal set
             {
                 if (value != this.value)
                 {
@@ -118,8 +134,8 @@ namespace BrickPi.Sensors
         /// </summary>
         public string ValueAsString
         {
-            get { return valueAsString; }
-            set
+            get { return ReadAsString(); }
+            internal set
             {
                 if (valueAsString != value)
                 {

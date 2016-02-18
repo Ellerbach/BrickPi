@@ -1,5 +1,4 @@
 ﻿using BrickPi;
-using BrickPi.Sensors;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -21,24 +20,20 @@ using Windows.UI.Xaml.Navigation;
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
-namespace BrickPiExample
+namespace BrickPiTests
 {
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.
     /// </summary>
     public sealed partial class MainPage : Page
     {
+        //Need a brick and a serial port
         private Brick brick;
         private SerialDevice serialPort = null;
-        private NXTTouchSensor touch;
         public MainPage()
         {
             this.InitializeComponent();
-
-            
-
-                this.Loaded += MainPage_Loaded;
-
+            this.Loaded += MainPage_Loaded;
         }
 
         /// <summary>
@@ -70,21 +65,8 @@ namespace BrickPiExample
         private async void MainPage_Loaded(object sender, RoutedEventArgs e)
         {
             await InitSerial();
-            try
-            {
-                touch = new NXTTouchSensor(BrickPortSensor.PORT_S2);
-                while (true)
-                {
-                    Debug.WriteLine(string.Format("touch {0}", touch.ValueAsString));
-                    await Task.Delay(100);
-                }
-            }
-            catch (Exception ex)
-            {
-
-                Debug.WriteLine(ex.Message);
-            }
-            
+            //call the tests from here
+            await TestEV3Color();
         }
     }
 }

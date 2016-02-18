@@ -20,7 +20,13 @@ namespace BrickPi.Sensors
 	/// </summary>
     public interface ISensor
 	{
+        /// <summary>
+        /// Property to return the raw value of the sensor as an int
+        /// </summary>
         int Value { get; }
+        /// <summary>
+        /// Property to return the raw value of the sensort as a string
+        /// </summary>
         string ValueAsString { get; }
         /// <summary>
         /// To update sensors

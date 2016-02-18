@@ -81,16 +81,26 @@ namespace BrickPi.Sensors
         private Brick brick = null;
         private IRMode mode;
 
+        /// <summary>
+        /// Initialize an EV3 IR Sensor
+        /// </summary>
+        /// <param name="port">Sensor port</param>
         public EV3IRSensor(BrickPortSensor port) : this(port, IRMode.Proximity, 1000)
 		{ }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="MonoBrick.EV3.IRSensor"/> class.
+        /// Initializes an EV3 IS Sensor
         /// </summary>
-        /// <param name="mode">Mode.</param>
+        /// <param name="mode">IR mode</param>
         public EV3IRSensor(BrickPortSensor port, IRMode mode):this(port, mode, 1000)
         { }
 
+        /// <summary>
+        /// Initialize an EV3 IR Sensor
+        /// </summary>
+        /// <param name="port">Sensor port</param>
+        /// <param name="mode">IR mode</param>
+        /// <param name="timeout">Period in millisecond to check sensor value changes</param>
         public EV3IRSensor(BrickPortSensor port, IRMode mode, int timeout)
         {
             brick = new Brick();
@@ -98,6 +108,7 @@ namespace BrickPi.Sensors
             Channel = IRChannel.One;
             brick.BrickPi.Sensor[(int)Port].Type = (BrickSensorType)mode;
             brick.SetupSensors();
+            periodRefresh = timeout;
             timer = new Timer(UpdateSensor, this, TimeSpan.FromMilliseconds(timeout), TimeSpan.FromMilliseconds(timeout));
         }
 
@@ -146,8 +157,8 @@ namespace BrickPi.Sensors
         /// </summary>
         public int Value
         {
-            get { return value; }
-            set
+            get { return ReadRaw(); }
+            internal set
             {
                 if (value != this.value)
                 {
@@ -162,8 +173,8 @@ namespace BrickPi.Sensors
         /// </summary>
         public string ValueAsString
         {
-            get { return valueAsString; }
-            set
+            get { return ReadAsString(); }
+            internal set
             {
                 if (valueAsString != value)
                 {

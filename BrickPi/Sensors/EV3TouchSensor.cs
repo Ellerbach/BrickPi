@@ -24,17 +24,23 @@ namespace BrickPi.Sensors
         private int NXTCutoff = 1015;
 
         /// <summary>
-        /// Initialise a new EV3 Touch sensor
+        /// Initialise an EV3 Touch sensor
         /// </summary>
-        /// <param name="port">Port where the NXT sensor is plugged</param>
+        /// <param name="port">Sensor port</param>
         public EV3TouchSensor(BrickPortSensor port):this(port, 1000)
         { }
+        /// <summary>
+        /// Initialize an EV3 Touch Sensor
+        /// </summary>
+        /// <param name="port">Sensor port</param>
+        /// <param name="timeout">Period in millisecond to check sensor value changes</param>
         public EV3TouchSensor(BrickPortSensor port, int timeout)
         {
             brick = new Brick();
             Port = port;
             brick.BrickPi.Sensor[(int)Port].Type = BrickSensorType.EV3_TOUCH_0;
             brick.SetupSensors();
+            periodRefresh = timeout;
             timer = new Timer(UpdateSensor, this, TimeSpan.FromMilliseconds(timeout), TimeSpan.FromMilliseconds(timeout));
         }
 
@@ -83,8 +89,8 @@ namespace BrickPi.Sensors
         /// </summary>
         public int Value
         {
-            get { return value; }
-            set
+            get { return ReadRaw(); }
+            internal set
             {
                 if (value != this.value)
                 {
@@ -99,8 +105,8 @@ namespace BrickPi.Sensors
         /// </summary>
         public string ValueAsString
         {
-            get { return valueAsString; }
-            set
+            get { return ReadAsString(); }
+            internal set
             {
                 if (valueAsString != value)
                 {
