@@ -104,6 +104,7 @@
     <Compile Include="DataArray.cs" />
     <Compile Include="Extensions\EnumExtension.cs" />
     <Compile Include="Movement\Motor.cs" />
+    <Compile Include="Movement\Vehicule.cs" />
     <Compile Include="Sensors\AnalogSensor.cs" />
     <Compile Include="Sensors\EV3ColorSensor.cs" />
     <Compile Include="Sensors\EV3GyroSensor.cs" />
