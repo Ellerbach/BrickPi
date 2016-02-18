@@ -75,7 +75,25 @@ namespace BrickPi.Sensors
             }
         }
 
+        /// <summary>
+        /// To notify a property has changed. The minimum time can be set up
+        /// with timeout property
+        /// </summary>
         public event PropertyChangedEventHandler PropertyChanged;
+
+        private int periodRefresh;
+        /// <summary>
+        /// Period to refresh the notification of property changed in milliseconds
+        /// </summary>
+        public int PeriodRefresh
+        {
+            get { return periodRefresh; }
+            set
+            {
+                periodRefresh = value;
+                timer.Change(TimeSpan.FromMilliseconds(periodRefresh), TimeSpan.FromMilliseconds(periodRefresh));
+            }
+        }
         private int value;
         private string valueAsString;
 
