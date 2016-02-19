@@ -192,9 +192,6 @@ namespace BrickPi
             catch (Exception ex)
             {
                 Debug.WriteLine(string.Format("Eror sending data: {0}", ex.Message));
-            }
-            finally
-            {
                 // Cleanup once complete
                 if (dataWriteObject != null)
                 {
