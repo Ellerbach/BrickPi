@@ -121,6 +121,7 @@
     <Compile Include="StartupTask.cs" />
     <Compile Include="Tools\MovingAverage.cs" />
     <Compile Include="Tools\PIDAbstraction.cs" />
+    <Compile Include="USBCam.cs" />
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest">
