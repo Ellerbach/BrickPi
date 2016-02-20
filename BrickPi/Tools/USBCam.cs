@@ -38,7 +38,7 @@ namespace BrickPi.Tools
         /// bitmap.SetSource(photoStream);
         /// captureImage.Source = bitmap;
         /// </returns>
-        private static async Task<StorageFile> TakePhotoAsync(string filename)
+        public static async Task<StorageFile> TakePhotoAsync(string filename)
         {
             StorageFile photoFile = await KnownFolders.PicturesLibrary.CreateFileAsync(
                     filename, CreationCollisionOption.GenerateUniqueName);
