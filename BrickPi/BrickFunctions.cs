@@ -14,6 +14,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading;
 using System.Threading.Tasks;
 using Windows.Foundation;
 
@@ -105,7 +106,7 @@ namespace BrickPi
             BrickPiUpdateValues().Wait();
         }
 
-        private void IsSetupNeeded()
+        public void IsSetupNeeded()
         {
             
             for(int idxArduino = 0; idxArduino<2; idxArduino++)
@@ -216,15 +217,25 @@ namespace BrickPi
                         }
                     }
                 }
-                //Send the data
-                int tx_bytes = (((dataArray.Bit_Offset + 7) / 8) + 1); // #eq to UART_TX_BYTES
-                BrickPiTx(BrickPi.Address[idxArduino], tx_bytes, dataArray.myArray);
-                //wait for answer
-                // IMPORTANT: in theory, waiting time if 7.5 ms but it does create problems
-                // so it is working fine with a 20 ms timeout. 
-                byte[] InArray = await BrickPiRx(20); //theory 7.5 ms
+                byte[] InArray = null;
+                try
+                {
+                    int tx_bytes = (((dataArray.Bit_Offset + 7) / 8) + 1); // #eq to UART_TX_BYTES
+                    BrickPiTx(BrickPi.Address[idxArduino], tx_bytes, dataArray.myArray);
+                    //wait for answer
+                    // IMPORTANT: in theory, waiting time if 7.5 ms but it does create problems
+                    // so it is working fine with a 20 ms timeout. 
+                    InArray = await BrickPiRx(20); //theory 7.5 ms                   
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine(string.Format("Error reading/writing: {0}", ex.Message));
+                    continue;
+                }
                 if (InArray == null)
                     continue;
+                //Send the data
+
                 // first part is about encoders
                 BrickPi.Motor[(idxArduino * 2) + (int)BrickPortMotor.PORT_A].EncoderOffset = 0;
                 BrickPi.Motor[(idxArduino * 2) + (int)BrickPortMotor.PORT_B].EncoderOffset = 0;
@@ -484,8 +495,9 @@ namespace BrickPi
         {
             DataArray dataArray = new DataArray();
             bool retval = true;
-
-            
+            int retry = 0;
+            while(retry <2)
+            { 
                 dataArray.Bit_Offset = 0;
                 dataArray.myArray[BYTE_MSG_TYPE] = MSG_TYPE_SENSOR_TYPE;
                 dataArray.myArray[BYTE_SENSOR_1_TYPE] = (byte)brickPi.Sensor[PORT_1 + idxArduino * 2].Type;
@@ -556,10 +568,15 @@ namespace BrickPi
                     Debug.WriteLine("initializing color sensor");
                 }
                 byte[] InArray = await BrickPiRx(timeout);
-                if (!((InArray[BYTE_MSG_TYPE] == MSG_TYPE_SENSOR_TYPE) && (InArray.Length == 1)))
-                    retval = false;
-            
+                if (InArray == null)
+                    return false;
+                else
+                    if (((InArray[BYTE_MSG_TYPE] == MSG_TYPE_SENSOR_TYPE) && (InArray.Length == 1)))
+                        return true;
+                retry++;
+            }
             return retval;
+            
         }
 
 

@@ -213,11 +213,14 @@ namespace BrickPi
             // clean token
             if (ReadCancellationTokenSource == null)
                 ReadCancellationTokenSource = new CancellationTokenSource();
-            //ReadCancellationTokenSource.CancelAfter(timeout + brickPi.Timeout);
+            ReadCancellationTokenSource.CancelAfter(timeout + brickPi.Timeout);
             //read from the serial port
             byte[] rx_buffer = await ReadAsync(timeout, ReadCancellationTokenSource.Token);
-            //make sure token is clened up
-            //CancelReadTask();
+            if (ReadCancellationTokenSource != null)
+            { 
+                ReadCancellationTokenSource.Dispose();
+                ReadCancellationTokenSource = null;
+            }
             // check if data are valids
             if (rx_buffer == null)
                 return null;
@@ -272,7 +275,7 @@ namespace BrickPi
                 uint ReadBufferLength = 1024;
 
                 // If task cancellation was requested, comply
-                cancellationToken.ThrowIfCancellationRequested();
+                //cancellationToken.ThrowIfCancellationRequested();
                 if (dataReaderObject == null)
                     dataReaderObject = new DataReader(serialPort.InputStream);
                 // Set InputStreamOptions to complete the asynchronous read operation when one or more bytes is available
@@ -303,25 +306,10 @@ namespace BrickPi
                     dataReaderObject.DetachStream();
                     dataReaderObject = null;
                 }
-                //if the cause if the token, then reset it 
+                Debug.WriteLine("Exception in reading");
                 return null;
             }
             
-        }
-
-        /// <summary>
-        /// CancelReadTask:
-        /// - Uses the ReadCancellationTokenSource to cancel read operations
-        /// </summary>
-        private void CancelReadTask()
-        {
-            if (ReadCancellationTokenSource != null)
-            {
-                if (!ReadCancellationTokenSource.IsCancellationRequested)
-                {
-                    ReadCancellationTokenSource.Cancel();
-                }
-            }
         }
 
         /// <summary>
