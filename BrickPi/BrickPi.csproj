@@ -116,6 +116,7 @@
     <Compile Include="Extensions\EnumExtension.cs" />
     <Compile Include="Movement\Motor.cs" />
     <Compile Include="Movement\Vehicule.cs" />
+    <Compile Include="Tools\MovingAverage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Sensors\AnalogSensor.cs" />
     <Compile Include="Sensors\EV3ColorSensor.cs" />
@@ -129,6 +130,7 @@
     <Compile Include="Sensors\NXTSoundSensor.cs" />
     <Compile Include="Sensors\NXTTouchSensor.cs" />
     <Compile Include="Sensors\NXTUltraSonicSensor.cs" />
+    <Compile Include="Tools\USBCam.cs" />
     <EmbeddedResource Include="Properties\BrickPiPL.rd.xml" />
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
