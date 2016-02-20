@@ -1,5 +1,5 @@
 # BrickPi
-This code allows you to use the excellent BrickPi from Dexter Industries running on RaspberryPi 2 with a Windows 10 IoT Core. 
+Windows 10 IoT Core implementation for the excellent BrickPi from Dexter Industries running on RaspberryPi 2. 
 
 ## Setup the RaspberryPi running Windows 10 IoT Core
 In early release of Windows 10 IoT Core, the high speed onboard serial is not supported. You need to manually change the device registry to enable the highspeed serial. Note as well that the code has been optimized to work even if the high speed serial is not fully supported. So once activated, it should just work. New drivers have/will be released for coming version which will be directly supported.
