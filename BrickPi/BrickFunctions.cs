@@ -517,8 +517,7 @@ namespace BrickPi
                 brickPi.Sensor[i].Type = (BrickSensorType)70;
             SetupSensors();
             UpdateValues();
-            return brickPi.Sensor[0].Value;
-            
+            return brickPi.Sensor[0].Value;           
         }
 
         /// <summary>
