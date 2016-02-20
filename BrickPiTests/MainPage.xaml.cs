@@ -28,7 +28,7 @@ namespace BrickPiTests
     public sealed partial class MainPage : Page
     {
         //Need a brick and a serial port
-        private Brick brick;
+        private Brick brick = null;
         private SerialDevice serialPort = null;
         public MainPage()
         {
@@ -66,7 +66,9 @@ namespace BrickPiTests
         {
             await InitSerial();
             //call the tests from here
+            //await TestVehicule();
             await TestEV3Color();
+            brick.Stop();
         }
     }
 }

@@ -156,5 +156,17 @@ namespace BrickPiTests
             Debug.WriteLine("All motors stoped");
         }
 
+        private async Task TestVehicule()
+        {
+            Vehicule veh = new Vehicule(BrickPortMotor.PORT_B, BrickPortMotor.PORT_C);
+            veh.DirectionOpposite = true;
+            veh.Backward(30, 5000);
+            veh.Foreward(30, 5000);
+            veh.TrunLeftTime(30, 5000);
+            veh.TrunRightTime(30, 5000);
+            veh.TurnLeft(30, 180);
+            veh.TurnRight(30, 180);
+
+        }
     }
 }

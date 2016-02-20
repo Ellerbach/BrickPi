@@ -30,7 +30,6 @@ namespace BrickPiTests
             brick.BrickPi.Sensor[0].Type = BrickSensorType.EV3_TOUCH_0;
             brick.BrickPi.Sensor[1].Type = BrickSensorType.ULTRASONIC_CONT;
             brick.BrickPi.Sensor[2].Type = BrickSensorType.COLOR_FULL;
-            brick.SetupSensors();
             bool bwait = true;
             while (bwait)
             {
@@ -51,7 +50,7 @@ namespace BrickPiTests
         private async Task TestMultipleSensorsTouchCSSoud()
         {
             NXTTouchSensor touch = new NXTTouchSensor(BrickPortSensor.PORT_S2);
-            EV3TouchSensor ev3Touch = new EV3TouchSensor(BrickPortSensor.PORT_S1);
+            EV3TouchSensor ev3Touch = new EV3TouchSensor(BrickPortSensor.PORT_S1, 20);
             NXTSoundSensor sound = new NXTSoundSensor(BrickPortSensor.PORT_S4);
             NXTColorSensor nxtlight = new NXTColorSensor(BrickPortSensor.PORT_S3);
             RGBColor rgb;
@@ -75,18 +74,19 @@ namespace BrickPiTests
 
         private async Task TestEV3Color()
         {
-            EV3ColorSensor nxtlight = new EV3ColorSensor(BrickPortSensor.PORT_S4, ColorSensorMode.Reflection);
+            EV3ColorSensor nxtlight = new EV3ColorSensor(BrickPortSensor.PORT_S2, ColorSensorMode.Color);
+            EV3TouchSensor touch = new EV3TouchSensor(BrickPortSensor.PORT_S1);
             RGBColor rgb;
             for (int i = 0; i < nxtlight.NumberOfModes(); i++)
             {
                 int count = 0;
-                while (count < 100)
+                while( (count < 100) && !touch.IsPressed())
                 {
                     //Debug.WriteLine(string.Format("NXT Touch, Raw: {0}, ReadASString: {1}, IsPressed: {2}, NumberNodes: {3}, SensorName: {4}", touch.ReadRaw(), touch.ReadAsString(), touch.IsPressed(), touch.NumberOfModes(), touch.GetSensorName()));
                     //Debug.WriteLine(string.Format("EV3 Touch, Raw: {0}, ReadASString: {1}, IsPressed: {2}, NumberNodes: {3}, SensorName: {4}", ev3Touch.ReadRaw(), ev3Touch.ReadAsString(), ev3Touch.IsPressed(), ev3Touch.NumberOfModes(), ev3Touch.GetSensorName()));
                     //Debug.WriteLine(string.Format("NXT Sound, Raw: {0}, ReadASString: {1}, NumberNodes: {2}, SensorName: {3}", sound.ReadRaw(), sound.ReadAsString(), sound.NumberOfModes(), sound.GetSensorName()));
-                    Debug.WriteLine(string.Format("EV3 Color Sensor, Raw: {0}, ReadASString: {1}, NumberNodes: {2}, SensorName: {3}",
-                        nxtlight.ReadRaw(), nxtlight.ReadAsString(), nxtlight.NumberOfModes(), nxtlight.GetSensorName()));
+                    Debug.WriteLine(string.Format("EV3 Color Sensor, Raw: {0}, ReadASString: {1}",
+                        nxtlight.ReadRaw(), nxtlight.ReadAsString()));
                     rgb = nxtlight.ReadRGBColor();
                     Debug.WriteLine(string.Format("Color: {0}, Red: {1}, Green: {2}, Blue: {3}",
                         nxtlight.ReadColor(), rgb.Red, rgb.Green, rgb.Blue));
