@@ -26,6 +26,7 @@ namespace BrickPi
         /// </summary>
         static private Task ThreadReading = null;
         static private bool needTimeout = false;
+        static private int[] prevType = new int[4] { -1, -1, -1, -1 }; //to force update at start
         /// <summary>
         /// Used to change the address of the Ardunio
         /// WARNING: don't use it except if you really know what you are doing
@@ -99,101 +100,29 @@ namespace BrickPi
             return retval;
         }
 
-        #region code to migrate to motor class
-        //this is old code used to test and will need to be moved into the 
-        // BrickPi.Movement and create differential mtors, motors that can be piloted at once, etc.
-        // So don't use this code, it will brake the running thread.
-        
-        /// <summary>
-        /// Pilot motors from the Brick	
-        /// Pass the arguments in a list. if a single motor has to be controlled then the arguments should be
-        /// passed as tables with a single element. 2 elements for 2 motors, etc
-        /// </summary>
-        /// <param name="power">an array of the power values at which to rotate the motors (0-255)</param>
-        /// <param name="deg">an array of the angle's (in degrees) by which to rotate each of the motor</param>
-        /// <param name="port">an array of the port's on which the motor is connected</param>
-        /// <param name="sampling_time">(optional) the rate(in milliseconds) at which to read the data in the encoders</param>
-        /// <param name="delay_when_stopping">(optional) the delay (in milliseconds) for which the motors are run in the opposite direction before stopping</param>
-        /// <returns>returns true if everything went correctly</returns>
-        private async Task<bool> motorRotateDegree(byte[] power, int[] deg, BrickPortMotor[] port, int sampling_time = 100, int delay_when_stopping = 50)
-        {
-            // check length of all tables
-            if ((power == null) || (deg == null) || (port == null))
-                return false;
-            if ((power.Length != deg.Length) || (power.Length != port.Length))
-                return false;
-            int num_motor = power.Length;
-            int[] init_val = new int[num_motor];
-            int[] final_val = new int[num_motor];
-
-            bool result = await BrickPiUpdateValues();
-            for (int i = 0; i < num_motor; i++)
-            {
-                BrickPi.Motor[(int)port[i]].Enable = 1;
-                SetMotorSpeed(power[i], deg[i], port[i]);
-                init_val[i] = BrickPi.Motor[(int)port[i]].Encoder;
-                //Final value when the motor has to be stopped;One encoder value counts for 0.5 degrees
-                final_val[i] = init_val[i] + (deg[i] * 2);
-            }
-            bool[] run_stat = new bool[num_motor];
-            while (true)
-            {
-                result = await BrickPiUpdateValues();
-                if (result)
-                {
-                    for (int i = 0; i < num_motor; i++)
-                    {
-                        if (run_stat[i])
-                            continue;
-                        //Check if final value reached for each of the motors
-                        if (((deg[i] > 0) && (final_val[i] > init_val[i])) ||
-                                ((deg[i] < 0) && (final_val[i] < init_val[i])))
-                        {
-                            init_val[i] = BrickPi.Motor[(int)port[i]].Encoder;
-                        }
-                        else
-                            run_stat[i] = true;
-                        SetMotorSpeed(power[i], deg[i], port[i]);
-                        result = await BrickPiUpdateValues();
-                        await Task.Delay(TimeSpan.FromMilliseconds(delay_when_stopping));
-                        BrickPi.Motor[(int)port[i]].Enable = 0;
-                        result = await BrickPiUpdateValues();
-                    }
-                }
-                await Task.Delay(TimeSpan.FromMilliseconds(sampling_time));
-                //check if all motors are now stoped
-                bool needstop = true;
-                for (int i = 0; i < num_motor; i++)
-                {
-                    needstop &= run_stat[i];
-                }
-                if (needstop)
-                    break;
-            }
-            return true;
-        }
-
-        private void SetMotorSpeed(byte power, int deg, BrickPortMotor port)
-        {
-            if (deg > 0)
-            {
-                BrickPi.Motor[(int)port].Speed = power;
-            }
-            else if (deg < 0)
-            {
-                BrickPi.Motor[(int)port].Speed = -power;
-            }
-            else
-            {
-                BrickPi.Motor[(int)port].Speed = 0;
-            }
-        }
-        #endregion
-
-
         public void UpdateValues()
         {
             BrickPiUpdateValues().Wait();
+        }
+
+        private void IsSetupNeeded()
+        {
+            
+            for(int idxArduino = 0; idxArduino<2; idxArduino++)
+            {
+                bool needsetup = false;
+                for (int i=0; i<2; i++)
+                {
+                    int port = idxArduino * 2 + i;
+                    if (prevType[port] != (int)brickPi.Sensor[port].Type)
+                    {
+                        needsetup = true;
+                        prevType[port] = (int)brickPi.Sensor[port].Type;
+                    }
+                }
+                if (needsetup)
+                    BrickPiSetupSensors(idxArduino).Wait();
+            }
         }
 
         /// <summary>
@@ -203,11 +132,7 @@ namespace BrickPi
         private async Task<bool> BrickPiUpdateValues()
         {
             //If setup is needed, then first setup the sensors
-            if (needSetup)
-            {
-                BrickPiSetupSensors().Wait();
-                needSetup = false;
-            }
+            IsSetupNeeded();
             //if need to change the timeout of the brick
             if (needTimeout)
             {
@@ -540,20 +465,6 @@ namespace BrickPi
         }
 
         /// <summary>
-        /// Setup all sensors, sending this information to the brick.
-        /// Note that this will stop the brick if running and then starts the brick
-        /// automatically.
-        /// </summary>
-        public void SetupSensors()
-        {
-            needSetup = true;
-            //if (!isThreadRunning)
-            //    Start();
-            //Stop();
-            //BrickPiSetupSensors().Wait();           
-        }
-
-        /// <summary>
         /// The main thread running all the time to check the sensor status
         /// </summary>
         /// <param name="action"></param>
@@ -569,40 +480,38 @@ namespace BrickPi
         /// SetupSensros function.
         /// </summary>
         /// <returns></returns>
-        private async Task<bool> BrickPiSetupSensors()
+        private async Task<bool> BrickPiSetupSensors(int idxArduino)
         {
             DataArray dataArray = new DataArray();
             bool retval = true;
-            bool iscolor = false;
-            //check if there is a sensor Light. If yes, then we'll need to wait super long to have it setup
-            //othewise, quite fast
-            for (int i = 0; i < 4; i++)
-                if ((brickPi.Sensor[i].Type == BrickSensorType.EV3_COLOR_M0) ||
-                    (brickPi.Sensor[i].Type == BrickSensorType.EV3_COLOR_M1) ||
-                    (brickPi.Sensor[i].Type == BrickSensorType.EV3_COLOR_M2) ||
-                    (brickPi.Sensor[i].Type == BrickSensorType.EV3_COLOR_M3) ||
-                    (brickPi.Sensor[i].Type == BrickSensorType.EV3_COLOR_M4) ||
-                    (brickPi.Sensor[i].Type == BrickSensorType.EV3_COLOR_M5) ||
-                    (brickPi.Sensor[i].Type == BrickSensorType.COLOR_BLUE) ||
-                    (brickPi.Sensor[i].Type == BrickSensorType.COLOR_FULL) ||
-                    (brickPi.Sensor[i].Type == BrickSensorType.COLOR_GREEN) ||
-                    (brickPi.Sensor[i].Type == BrickSensorType.COLOR_NONE) ||
-                    (brickPi.Sensor[i].Type == BrickSensorType.COLOR_RED)
-                    )
-                    iscolor = true;
 
-            for (int i = 0; i < 2; i++)
-            {
+            
                 dataArray.Bit_Offset = 0;
                 dataArray.myArray[BYTE_MSG_TYPE] = MSG_TYPE_SENSOR_TYPE;
-                dataArray.myArray[BYTE_SENSOR_1_TYPE] = (byte)brickPi.Sensor[PORT_1 + i * 2].Type;
-                dataArray.myArray[BYTE_SENSOR_2_TYPE] = (byte)brickPi.Sensor[PORT_2 + i * 2].Type;
-                for (int ii = 0; ii < 2; ii++)
-                {
-                    int port = i * 2 + ii;
-                    if (dataArray.myArray[BYTE_SENSOR_1_TYPE + ii] == (byte)BrickSensorType.ULTRASONIC_CONT)
+                dataArray.myArray[BYTE_SENSOR_1_TYPE] = (byte)brickPi.Sensor[PORT_1 + idxArduino * 2].Type;
+                dataArray.myArray[BYTE_SENSOR_2_TYPE] = (byte)brickPi.Sensor[PORT_2 + idxArduino * 2].Type;
+                bool iscolor = false;
+                for (int idxPort = 0; idxPort < 2; idxPort++)
+                {                    
+                    int port = idxArduino * 2 + idxPort;
+                    //check if there is a sensor Light. If yes, then we'll need to wait super long to have it setup
+                    //othewise, quite fast
+                    if ((brickPi.Sensor[port].Type == BrickSensorType.EV3_COLOR_M0) ||
+                    (brickPi.Sensor[port].Type == BrickSensorType.EV3_COLOR_M1) ||
+                    (brickPi.Sensor[port].Type == BrickSensorType.EV3_COLOR_M2) ||
+                    (brickPi.Sensor[port].Type == BrickSensorType.EV3_COLOR_M3) ||
+                    (brickPi.Sensor[port].Type == BrickSensorType.EV3_COLOR_M4) ||
+                    (brickPi.Sensor[port].Type == BrickSensorType.EV3_COLOR_M5) ||
+                    (brickPi.Sensor[port].Type == BrickSensorType.COLOR_BLUE) ||
+                    (brickPi.Sensor[port].Type == BrickSensorType.COLOR_FULL) ||
+                    (brickPi.Sensor[port].Type == BrickSensorType.COLOR_GREEN) ||
+                    (brickPi.Sensor[port].Type == BrickSensorType.COLOR_NONE) ||
+                    (brickPi.Sensor[port].Type == BrickSensorType.COLOR_RED)
+                    )
+                        iscolor = true;
+                    if (dataArray.myArray[BYTE_SENSOR_1_TYPE + idxPort] == (byte)BrickSensorType.ULTRASONIC_CONT)
                     {
-                        dataArray.myArray[BYTE_SENSOR_1_TYPE + ii] = (byte)BrickSensorType.I2C;
+                        dataArray.myArray[BYTE_SENSOR_1_TYPE + idxPort] = (byte)BrickSensorType.I2C;
                         brickPi.I2C[port].Speed = US_I2C_SPEED;
                         brickPi.I2C[port].Devices = 1;
                         brickPi.Sensor[port].Settings[US_I2C_IDX] = BIT_I2C_MID | BIT_I2C_SAME;
@@ -611,7 +520,7 @@ namespace BrickPi
                         brickPi.I2C[port].Read[US_I2C_IDX] = 1;
                         brickPi.I2C[port].Out[US_I2C_IDX].InOut[0] = LEGO_US_I2C_DATA_REG;
                     }
-                    if ((dataArray.myArray[BYTE_SENSOR_1_TYPE + ii] == (byte)BrickSensorType.I2C) || (dataArray.myArray[BYTE_SENSOR_1_TYPE + ii] == (byte)BrickSensorType.I2C_9V))
+                    if ((dataArray.myArray[BYTE_SENSOR_1_TYPE + idxPort] == (byte)BrickSensorType.I2C) || (dataArray.myArray[BYTE_SENSOR_1_TYPE + idxPort] == (byte)BrickSensorType.I2C_9V))
                     {
                         dataArray.AddBits(3, 0, 8, brickPi.I2C[port].Speed);
                         if (brickPi.I2C[port].Devices > 8)
@@ -638,15 +547,18 @@ namespace BrickPi
                     }
                 }
                 int tx_bytes = (((dataArray.Bit_Offset + 7) / 8) + 3); //#eq to UART_TX_BYTES
-                BrickPiTx(brickPi.Address[i], tx_bytes, dataArray.myArray);
+                BrickPiTx(brickPi.Address[idxArduino], tx_bytes, dataArray.myArray);
                 //# Timeout set to 5 seconds to setup EV3 sensors successfully
                 int timeout = 100;
                 if (iscolor)
+                {
                     timeout = 5000;
+                    Debug.WriteLine("initializing color sensor");
+                }
                 byte[] InArray = await BrickPiRx(timeout);
-                if ((InArray[BYTE_MSG_TYPE] == MSG_TYPE_SENSOR_TYPE) && (InArray.Length == 1))
+                if (!((InArray[BYTE_MSG_TYPE] == MSG_TYPE_SENSOR_TYPE) && (InArray.Length == 1)))
                     retval = false;
-            }
+            
             return retval;
         }
 

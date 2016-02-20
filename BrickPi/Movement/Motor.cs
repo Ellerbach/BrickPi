@@ -155,7 +155,7 @@ namespace BrickPi.Movement
 
         public BrickPortMotor Port { get; internal set; }
 
-        protected void OnPropertyChanged(string name)
+        private void OnPropertyChanged(string name)
         {
             PropertyChangedEventHandler handler = PropertyChanged;
             if (handler != null)

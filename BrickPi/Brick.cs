@@ -33,7 +33,6 @@ namespace BrickPi
         static private bool isThreadRunning = false;
         static private DataReader dataReaderObject = null;
         static private DataWriter dataWriteObject = null;
-        static private bool needSetup = false;
 
         /// <summary>
         /// Property for the main BrickPi Structure
@@ -76,13 +75,16 @@ namespace BrickPi
 
         }
 
+        /// <summary>
+        /// Initialize the birck, create the strcture and setup the serial port
+        /// </summary>
+        /// <param name="myserial">serial potr to use</param>
         public Brick(SerialDevice myserial)
         {
             if (brickPi == null)
                 brickPi = new BrickPiStruct();
             if (serialPort == null)
                 SelectAndInitSerial(myserial).Wait();
-            needSetup = true;
             if (!isThreadRunning)
             {
                 Start();

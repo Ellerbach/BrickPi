@@ -265,7 +265,7 @@ namespace BrickPi.Movement
         /// <returns>true if vehicule moving</returns>
         public bool IsRunning()
         {
-            if (IsRunning(portleft) && IsRunning(portright))
+            if (IsRunning(portleft) || IsRunning(portright))
                 return true;
             return false;
         }

@@ -68,7 +68,6 @@ namespace BrickPi.Sensors
             lightMode = mode;
             CutOff = 512;
             brick.BrickPi.Sensor[(int)Port].Type = (BrickSensorType)mode;
-            brick.SetupSensors();
             periodRefresh = timeout;
             timer = new Timer(UpdateSensor, this, TimeSpan.FromMilliseconds(timeout), TimeSpan.FromMilliseconds(timeout));
         }
@@ -82,7 +81,7 @@ namespace BrickPi.Sensors
                 timer = null;
             }
         }
-        protected void OnPropertyChanged(string name)
+        private void OnPropertyChanged(string name)
         {
             PropertyChangedEventHandler handler = PropertyChanged;
             if (handler != null)
@@ -172,7 +171,6 @@ namespace BrickPi.Sensors
                 {
                     lightMode = value;
                     brick.BrickPi.Sensor[(int)Port].Type = (BrickSensorType)lightMode;
-                    brick.SetupSensors();
                 }
             }
         }

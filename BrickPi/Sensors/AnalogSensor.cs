@@ -42,7 +42,6 @@ namespace BrickPi.Sensors
             brick = new Brick();
             Port = port;
             brick.BrickPi.Sensor[(int)Port].Type = BrickSensorType.SENSOR_RAW;
-            brick.SetupSensors();
             periodRefresh = timeout;
             timer = new Timer(UpdateSensor, this, TimeSpan.FromMilliseconds(timeout), TimeSpan.FromMilliseconds(timeout));
         }
@@ -62,7 +61,7 @@ namespace BrickPi.Sensors
             get; internal set;
         }
 
-        protected void OnPropertyChanged(string name)
+        private void OnPropertyChanged(string name)
         {
             PropertyChangedEventHandler handler = PropertyChanged;
             if (handler != null)

@@ -128,7 +128,6 @@ namespace BrickPi.Sensors
             Port = port;
             colorMode = mode;
             brick.BrickPi.Sensor[(int)Port].Type = (BrickSensorType)mode;
-            brick.SetupSensors();
             periodRefresh = timeout;
             timer = new Timer(UpdateSensor, this, TimeSpan.FromMilliseconds(timeout), TimeSpan.FromMilliseconds(timeout));
         }
@@ -142,7 +141,7 @@ namespace BrickPi.Sensors
                 timer = null;
             }
         }
-        protected void OnPropertyChanged(string name)
+        private void OnPropertyChanged(string name)
         {
             PropertyChangedEventHandler handler = PropertyChanged;
             if (handler != null)
@@ -222,7 +221,6 @@ namespace BrickPi.Sensors
                 {
                     colorMode = value;
                     brick.BrickPi.Sensor[(int)Port].Type = (BrickSensorType)colorMode;
-                    brick.SetupSensors();
                 }
             }
         }
@@ -299,7 +297,7 @@ namespace BrickPi.Sensors
                 return brick.BrickPi.Sensor[(int)Port].Value;
         }
 
-        protected int CalculateRawAverageAsPct()
+        private int CalculateRawAverageAsPct()
         {
             //Need to find out what is the ADC resolution
             //1023 is probablt not the correct one

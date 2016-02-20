@@ -107,7 +107,6 @@ namespace BrickPi.Sensors
             Mode = mode;
             Channel = IRChannel.One;
             brick.BrickPi.Sensor[(int)Port].Type = (BrickSensorType)mode;
-            brick.SetupSensors();
             periodRefresh = timeout;
             timer = new Timer(UpdateSensor, this, TimeSpan.FromMilliseconds(timeout), TimeSpan.FromMilliseconds(timeout));
         }
@@ -121,7 +120,7 @@ namespace BrickPi.Sensors
                 timer = null;
             }
         }
-        protected void OnPropertyChanged(string name)
+        private void OnPropertyChanged(string name)
         {
             PropertyChangedEventHandler handler = PropertyChanged;
             if (handler != null)
@@ -204,7 +203,6 @@ namespace BrickPi.Sensors
                 {
                     mode = value;
                     brick.BrickPi.Sensor[(int)Port].Type = (BrickSensorType)mode;
-                    brick.SetupSensors();
                 } 
             }
         }
