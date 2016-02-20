@@ -7,7 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BrickPiExample", "BrickPiEx
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BrickPiTests", "BrickPiTests\BrickPiTests.csproj", "{F3447090-3EC6-4267-8DD9-27EE834E3977}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BrickPi", "BrickPiPL\BrickPi.csproj", "{7496FC96-036C-49E5-8E51-69CFEFA84FCE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BrickPi", "BrickPi\BrickPi.csproj", "{7496FC96-036C-49E5-8E51-69CFEFA84FCE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

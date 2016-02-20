@@ -6,12 +6,12 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("BrickPi")]
-[assembly: AssemblyDescription("Library to connect to the Dexter Industries BrickPi")]
+[assembly: AssemblyDescription("Portable Library for Universal Windows Platform")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("BrickPi")]
 [assembly: AssemblyCopyright("Copyright ©  2016")]
-[assembly: AssemblyTrademark("")]
+[assembly: AssemblyTrademark("Laurent Ellerbach")]
 [assembly: AssemblyCulture("")]
 
 // Version information for an assembly consists of the following four values:

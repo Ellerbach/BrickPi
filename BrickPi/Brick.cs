@@ -70,7 +70,7 @@ namespace BrickPi
         /// <summary>
         /// Initialize the brick, create the structure and setup the serial port
         /// </summary>
-        public Brick():this(null, true)
+        public Brick() : this(null, true)
         {
 
         }
@@ -79,7 +79,7 @@ namespace BrickPi
         /// Initialize the brick, create the structure and setup the serial port
         /// </summary>
         /// <param name="myserial">serial port to use</param>
-        public Brick(SerialDevice myserial):this(myserial, true)
+        public Brick(SerialDevice myserial) : this(myserial, true)
         {
 
         }
@@ -95,7 +95,7 @@ namespace BrickPi
                 brickPi = new BrickPiStruct();
             if (serialPort == null)
                 SelectAndInitSerial(myserial).Wait();
-            if(autostart)
+            if (autostart)
                 if (!isThreadRunning)
                 {
                     Start();
@@ -127,7 +127,7 @@ namespace BrickPi
                 }
                 else
                     serialPort = myserial;
-                if (serialPort!=null)
+                if (serialPort != null)
                 {
                     serialPort.BaudRate = 500000; //the communication speed with the 2 arduinos.
                     // you may need to do the following steps into your RaspberryPi rinnong Windows IoT core:
@@ -177,7 +177,7 @@ namespace BrickPi
             //OutArray.CopyTo(txBuff, 3);
             for (int i = 0; i < byteCount; i++)
                 txBuff[i + 3] = OutArray[i];
-            
+
             try
             {
                 if (serialPort != null)
@@ -192,7 +192,8 @@ namespace BrickPi
                     if (bytesWritten > 0)
                     {
                         //Debug.WriteLine(string.Format("Bytes written successfully: {0}", bytesWritten));
-                    } else
+                    }
+                    else
                     {
                         Debug.WriteLine("Error sending data");
                     }
@@ -228,7 +229,7 @@ namespace BrickPi
             //read from the serial port
             byte[] rx_buffer = await ReadAsync(timeout, ReadCancellationTokenSource.Token);
             if (ReadCancellationTokenSource != null)
-            { 
+            {
                 ReadCancellationTokenSource.Dispose();
                 ReadCancellationTokenSource = null;
             }
@@ -244,7 +245,7 @@ namespace BrickPi
                 return null;
             byte[] retval = new byte[rx_buffer.Length - 2];
             //create the returned buffer, remove the message lenght and checksum
-            for (int i = 0; i < (rx_buffer.Length-2); i++)
+            for (int i = 0; i < (rx_buffer.Length - 2); i++)
                 retval[i] = rx_buffer[i + 2];
             return retval;
         }
@@ -265,7 +266,7 @@ namespace BrickPi
                 return long.MaxValue;
             //do the sum
             long retval = 0;
-            for(int i = idxStart; i<(idxStart + byteCount); i++)
+            for (int i = idxStart; i < (idxStart + byteCount); i++)
             {
                 retval += arrayToCount[i];
             }
@@ -320,7 +321,7 @@ namespace BrickPi
                 Debug.WriteLine("Exception in reading");
                 return null;
             }
-            
+
         }
 
         /// <summary>
@@ -339,6 +340,6 @@ namespace BrickPi
         }
 
 
-}
+    }
 
 }
