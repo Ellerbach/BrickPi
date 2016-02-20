@@ -23,7 +23,7 @@ namespace BrickPi.Movement
         public Vehicule(BrickPortMotor left, BrickPortMotor right)
         {
             brick = new Brick();
-            brick.Start();
+            //brick.Start();
             portleft = left;
             portright = right;
         }

@@ -78,13 +78,12 @@ namespace BrickPi
 
         /// <summary>
         /// Set a new timeout on the brick
-        /// WARNING: This has not been tested intensively, most likely, need to change some of the timeouts
         /// </summary>
-        /// <returns></returns>
+        /// <returns>true if all worked</returns>
         private async Task<bool> BrickPiSetTimeout()
         {
             DataArray dataArray = new DataArray();
-            bool retval = true;
+            bool retval = false; 
             for (int i = 0; i < 2; i++)
             {
                 dataArray.myArray[BYTE_MSG_TYPE] = MSG_TYPE_TIMEOUT_SETTINGS;
@@ -96,12 +95,34 @@ namespace BrickPi
                 // IMPORTANT: theoritical timeout is 2.5 ms
                 // Working all the time with 20
                 byte[] InArray = await BrickPiRx(20); //0.002500
-                byte[] OutArray;
-                retval &= CheckRetMessage(InArray, MSG_TYPE_TIMEOUT_SETTINGS, out OutArray);
+                if (InArray == null)
+                    return false;
+                if ((InArray[0] == MSG_TYPE_TIMEOUT_SETTINGS) && (InArray.Length == 1))
+                    return true;
             }
             return retval;
         }
 
+        /// <summary>
+        /// Set brick timeout for motor to stop
+        /// </summary>
+        /// <param name="timeout">timeout in milliseconds</param>
+        public void SetTimeout(int timeout)
+        {
+            brickPi.Timeout = timeout;
+            if (!isThreadRunning)
+                ThreadPool.RunAsync((iasyn) =>
+                {
+                    BrickPiSetTimeout().Wait();
+                }, WorkItemPriority.High).AsTask().Wait();
+            else
+                BrickPiSetTimeout().Wait();
+
+        }
+
+        /// <summary>
+        /// Update values. Don't use this function if the brick is started, only when not started
+        /// </summary>
         public void UpdateValues()
         {
             if (!isThreadRunning)
@@ -114,7 +135,10 @@ namespace BrickPi
 
         }
 
-        public void IsSetupNeeded()
+        /// <summary>
+        /// Setup sensors. Don't use this function if the brick is started, only when not started
+        /// </summary>
+        public void SetupSensors()
         {
             
             for(int idxArduino = 0; idxArduino<2; idxArduino++)
@@ -149,7 +173,7 @@ namespace BrickPi
         private async Task<bool> BrickPiUpdateValues()
         {
             //If setup is needed, then first setup the sensors
-            IsSetupNeeded();
+            SetupSensors();
             //if need to change the timeout of the brick
             if (needTimeout)
             {
@@ -487,8 +511,8 @@ namespace BrickPi
             if (isThreadRunning == true)
                 return;
             isThreadRunning = true;
-            ThreadReading = Windows.System.Threading.ThreadPool.RunAsync(this.ContinuousUpdate, Windows.System.Threading.WorkItemPriority.High).AsTask();
-            Task.Delay(100).Wait();
+            ThreadReading = ThreadPool.RunAsync(this.ContinuousUpdate, WorkItemPriority.High).AsTask();
+            //Task.Delay(100).Wait();
         }
 
         /// <summary>

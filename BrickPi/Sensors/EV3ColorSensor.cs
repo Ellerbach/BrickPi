@@ -183,10 +183,10 @@ namespace BrickPi.Sensors
 
         private void GetRawValues()
         {
-            rawValues[RedIndex] = (short)(brick.BrickPi.Sensor[(int)Port].Value & 0xFF);
-            rawValues[GreenIndex] = (short)((brick.BrickPi.Sensor[(int)Port].Value >> 8)& 0xFF);
-            rawValues[BlueIndex] = (short)((brick.BrickPi.Sensor[(int)Port].Value >> 16) & 0xFF);
-            rawValues[BackgroundIndex] = (short)((brick.BrickPi.Sensor[(int)Port].Value >> 24) & 0xFF);
+            rawValues[BackgroundIndex] = (short)(brick.BrickPi.Sensor[(int)Port].Value & 0xFF);
+            rawValues[BlueIndex] = (short)((brick.BrickPi.Sensor[(int)Port].Value >> 8)& 0xFF);
+            rawValues[GreenIndex] = (short)((brick.BrickPi.Sensor[(int)Port].Value >> 16) & 0xFF);
+            rawValues[RedIndex] = (short)((brick.BrickPi.Sensor[(int)Port].Value >> 24) & 0xFF);
         }
 
         public int ReadRaw()
@@ -241,7 +241,7 @@ namespace BrickPi.Sensors
                 return (int)(rawValues[RedIndex] + rawValues[BlueIndex] + rawValues[GreenIndex]) / 3;
             }
             else
-                return brick.BrickPi.Sensor[(int)Port].Value;
+                return brick.BrickPi.Sensor[(int)Port].Value / 255 /3;
         }
 
         private int CalculateRawAverageAsPct()

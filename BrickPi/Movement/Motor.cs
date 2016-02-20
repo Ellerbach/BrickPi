@@ -47,7 +47,7 @@ namespace BrickPi.Movement
         {
             brick = new Brick();
             Port = port;
-            brick.Start();
+            //brick.Start();
             periodRefresh = timeout;
             timer = new Timer(UpdateSensor, this, TimeSpan.FromMilliseconds(timeout), TimeSpan.FromMilliseconds(timeout));
         }

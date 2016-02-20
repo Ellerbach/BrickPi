@@ -68,28 +68,39 @@ namespace BrickPi
         }
 
         /// <summary>
-        /// Initialize the birck, create the strcture and setup the serial port
+        /// Initialize the brick, create the structure and setup the serial port
         /// </summary>
-        public Brick():this(null)
+        public Brick():this(null, true)
         {
 
         }
 
         /// <summary>
-        /// Initialize the birck, create the strcture and setup the serial port
+        /// Initialize the brick, create the structure and setup the serial port
         /// </summary>
-        /// <param name="myserial">serial potr to use</param>
-        public Brick(SerialDevice myserial)
+        /// <param name="myserial">serial port to use</param>
+        public Brick(SerialDevice myserial):this(myserial, true)
+        {
+
+        }
+
+        /// <summary>
+        /// Initialize the birck, create the structure and setup the serial port
+        /// </summary>
+        /// <param name="myserial">serial port to use</param>
+        /// <param name="autostart">starts automatically the reading thread</param>
+        public Brick(SerialDevice myserial, bool autostart)
         {
             if (brickPi == null)
                 brickPi = new BrickPiStruct();
             if (serialPort == null)
                 SelectAndInitSerial(myserial).Wait();
-            //if (!isThreadRunning)
-            //{
-            //    Start();
-            //    Task.Delay(100).Wait();
-            //}
+            if(autostart)
+                if (!isThreadRunning)
+                {
+                    Start();
+                    Task.Delay(100).Wait();
+                }
         }
 
         /// <summary>
