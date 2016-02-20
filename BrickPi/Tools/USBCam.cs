@@ -8,7 +8,7 @@ using Windows.Media.MediaProperties;
 using Windows.Storage;
 using Windows.Storage.Streams;
 
-namespace BrickPi
+namespace BrickPi.Tools
 {
     /// <summary>
     /// Class to control USB camera, to be used as a singleton
@@ -38,7 +38,7 @@ namespace BrickPi
         /// bitmap.SetSource(photoStream);
         /// captureImage.Source = bitmap;
         /// </returns>
-        public static async Task<StorageFile> TakePhotoAsync(string filename)
+        private static async Task<StorageFile> TakePhotoAsync(string filename)
         {
             StorageFile photoFile = await KnownFolders.PicturesLibrary.CreateFileAsync(
                     filename, CreationCollisionOption.GenerateUniqueName);
@@ -46,6 +46,11 @@ namespace BrickPi
             await mediaCapture.CapturePhotoToStorageFileAsync(imageProperties, photoFile);
             return photoFile;
             
+        }
+
+        public static void TakePicture(string filename)
+        {
+            TakePhotoAsync(filename).Wait();
         }
     }
 }

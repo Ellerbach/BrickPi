@@ -504,6 +504,24 @@ namespace BrickPi
         }
 
         /// <summary>
+        /// Don't use in normal code, this will errase the sensor type
+        /// use only for debug purpose
+        /// </summary>
+        /// <returns>version number</returns>
+        public int GetBrickVersion()
+        {
+            //stop the brick, start a thread and read the version, start again the brick
+            Stop();
+            Task.Delay(100).Wait();
+            for (int i = 0; i < 4; i++)
+                brickPi.Sensor[i].Type = (BrickSensorType)70;
+            SetupSensors();
+            UpdateValues();
+            return brickPi.Sensor[0].Value;
+            
+        }
+
+        /// <summary>
         /// Start reading the brick, getting info from sensors, moving motors
         /// </summary>
         public void Start()
