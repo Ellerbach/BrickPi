@@ -65,9 +65,12 @@ namespace BrickPiTests
         private async void MainPage_Loaded(object sender, RoutedEventArgs e)
         {
             await InitSerial();
+            //brick.Start();
             //call the tests from here
             //await TestVehicule();
             await TestEV3Color();
+            //await TestNXTUS();
+            //await GetVersion();
             brick.Stop();
         }
     }

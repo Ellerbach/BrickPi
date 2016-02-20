@@ -74,28 +74,43 @@ namespace BrickPiTests
 
         private async Task TestEV3Color()
         {
-            EV3ColorSensor nxtlight = new EV3ColorSensor(BrickPortSensor.PORT_S2, ColorSensorMode.Color);
+            //brick.Stop();
+            //brick.SetTimeout(250);
+            EV3ColorSensor nxtlight = new EV3ColorSensor(BrickPortSensor.PORT_S4, ColorSensorMode.Reflection);
             EV3TouchSensor touch = new EV3TouchSensor(BrickPortSensor.PORT_S1);
+            //brick.Stop();
+            //brick.SetupSensors();
             RGBColor rgb;
+            await Task.Delay(5000);
             for (int i = 0; i < nxtlight.NumberOfModes(); i++)
             {
                 int count = 0;
-                while( (count < 100) && !touch.IsPressed())
+                while ((count < 100) && !touch.IsPressed())
                 {
                     //Debug.WriteLine(string.Format("NXT Touch, Raw: {0}, ReadASString: {1}, IsPressed: {2}, NumberNodes: {3}, SensorName: {4}", touch.ReadRaw(), touch.ReadAsString(), touch.IsPressed(), touch.NumberOfModes(), touch.GetSensorName()));
                     //Debug.WriteLine(string.Format("EV3 Touch, Raw: {0}, ReadASString: {1}, IsPressed: {2}, NumberNodes: {3}, SensorName: {4}", ev3Touch.ReadRaw(), ev3Touch.ReadAsString(), ev3Touch.IsPressed(), ev3Touch.NumberOfModes(), ev3Touch.GetSensorName()));
                     //Debug.WriteLine(string.Format("NXT Sound, Raw: {0}, ReadASString: {1}, NumberNodes: {2}, SensorName: {3}", sound.ReadRaw(), sound.ReadAsString(), sound.NumberOfModes(), sound.GetSensorName()));
+
+                    //brick.UpdateValues();
                     Debug.WriteLine(string.Format("EV3 Color Sensor, Raw: {0}, ReadASString: {1}",
                         nxtlight.ReadRaw(), nxtlight.ReadAsString()));
                     rgb = nxtlight.ReadRGBColor();
                     Debug.WriteLine(string.Format("Color: {0}, Red: {1}, Green: {2}, Blue: {3}",
                         nxtlight.ReadColor(), rgb.Red, rgb.Green, rgb.Blue));
-
+                    //brick.Stop();
+                    //brick.Start();
+                    //nxtlight.ColorMode = ColorSensorMode.Ambient;
                     await Task.Delay(1000);
                     //if ((touch.IsPressed()) && ev3Touch.IsPressed())
                     count++;
+                    //nxtlight.ColorMode = ColorSensorMode.Color;
                 }
-                nxtlight.SelectNextMode();
+                if (nxtlight.ColorMode == ColorSensorMode.Reflection)
+                    nxtlight.ColorMode = ColorSensorMode.Color;
+                else
+                    nxtlight.ColorMode = ColorSensorMode.Reflection;
+                //brick.SetupSensors();
+                await Task.Delay(5000);
             }
 
         }
@@ -121,14 +136,14 @@ namespace BrickPiTests
 
         private async Task TestNXTUS()
         {
-            NXTUltraSonicSensor ultra = new NXTUltraSonicSensor(BrickPortSensor.PORT_S3);
+            NXTUltraSonicSensor ultra = new NXTUltraSonicSensor(BrickPortSensor.PORT_S4);
             for (int i = 0; i < ultra.NumberOfModes(); i++)
             {
                 int count = 0;
                 while (count < 100)
                 {
-                    Debug.WriteLine(string.Format("NXT Touch, Distance: {0}, ReadAsString: {1}, NumberNodes: {2}, SensorName: {3}",
-                        ultra.ReadDistance(), ultra.ReadAsString(), ultra.NumberOfModes(), ultra.GetSensorName()));
+                    Debug.WriteLine(string.Format("NXT US, Distance: {0}, ReadAsString: {1}, Selected mode: {2}",
+                        ultra.ReadDistance(), ultra.ReadAsString(), ultra.SelectedMode()));
                     await Task.Delay(300);
                 }
                 ultra.SelectNextMode();
@@ -174,6 +189,12 @@ namespace BrickPiTests
             }
         }
 
+        private async Task GetVersion()
+        {
+            int val = brick.GetBrickVersion();
+            Debug.WriteLine(string.Format("Version number: {0}", val));
+
+        }
         //TODO: build other sensor tests
     }
 }

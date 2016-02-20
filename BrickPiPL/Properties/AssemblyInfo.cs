@@ -5,13 +5,13 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("BrickPiPL")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("BrickPi")]
+[assembly: AssemblyDescription("Portable Library for Universal Windows Platform")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("BrickPiPL")]
+[assembly: AssemblyProduct("BrickPi")]
 [assembly: AssemblyCopyright("Copyright ©  2016")]
-[assembly: AssemblyTrademark("")]
+[assembly: AssemblyTrademark("Laurent Ellerbach")]
 [assembly: AssemblyCulture("")]
 
 // Version information for an assembly consists of the following four values:

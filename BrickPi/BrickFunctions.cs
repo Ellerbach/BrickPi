@@ -622,7 +622,7 @@ namespace BrickPi
                 int timeout = 100;
                 if (iscolor)
                 {
-                    timeout = 5000;
+                    timeout = 3000;
                     Debug.WriteLine("initializing color sensor");
                 }
                 byte[] InArray = await BrickPiRx(timeout);

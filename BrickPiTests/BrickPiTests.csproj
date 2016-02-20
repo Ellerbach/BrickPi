@@ -129,8 +129,8 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\BrickPi\BrickPi.csproj">
-      <Project>{76af7e5f-820d-475f-ae13-433db05137c2}</Project>
+    <ProjectReference Include="..\BrickPiPL\BrickPi.csproj">
+      <Project>{7496fc96-036c-49e5-8e51-69cfefa84fce}</Project>
       <Name>BrickPi</Name>
     </ProjectReference>
   </ItemGroup>

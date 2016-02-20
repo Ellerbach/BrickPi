@@ -7,8 +7,8 @@
     <ProjectGuid>{7496FC96-036C-49E5-8E51-69CFEFA84FCE}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>BrickPiPL</RootNamespace>
-    <AssemblyName>BrickPiPL</AssemblyName>
+    <RootNamespace>BrickPi</RootNamespace>
+    <AssemblyName>BrickPi</AssemblyName>
     <DefaultLanguage>en-US</DefaultLanguage>
     <TargetPlatformIdentifier>UAP</TargetPlatformIdentifier>
     <TargetPlatformVersion>10.0.10586.0</TargetPlatformVersion>
