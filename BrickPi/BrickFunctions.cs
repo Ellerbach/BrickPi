@@ -17,6 +17,7 @@ using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.Foundation;
+using Windows.System.Threading;
 
 namespace BrickPi
 {
@@ -103,7 +104,14 @@ namespace BrickPi
 
         public void UpdateValues()
         {
-            BrickPiUpdateValues().Wait();
+            if (!isThreadRunning)
+                ThreadPool.RunAsync((iasyn) =>
+                {
+                    BrickPiUpdateValues().Wait();
+                }, WorkItemPriority.High).AsTask().Wait();
+            else
+                BrickPiUpdateValues().Wait();
+
         }
 
         public void IsSetupNeeded()
@@ -122,7 +130,15 @@ namespace BrickPi
                     }
                 }
                 if (needsetup)
-                    BrickPiSetupSensors(idxArduino).Wait();
+                { 
+                    if(!isThreadRunning)
+                        ThreadPool.RunAsync((iasyn) =>
+                        {
+                            BrickPiSetupSensors(idxArduino).Wait();
+                        },WorkItemPriority.High).AsTask().Wait();
+                    else
+                        BrickPiSetupSensors(idxArduino).Wait();
+                }
             }
         }
 
@@ -496,68 +512,69 @@ namespace BrickPi
             DataArray dataArray = new DataArray();
             bool retval = true;
             int retry = 0;
-            while(retry <2)
-            { 
-                dataArray.Bit_Offset = 0;
-                dataArray.myArray[BYTE_MSG_TYPE] = MSG_TYPE_SENSOR_TYPE;
-                dataArray.myArray[BYTE_SENSOR_1_TYPE] = (byte)brickPi.Sensor[PORT_1 + idxArduino * 2].Type;
-                dataArray.myArray[BYTE_SENSOR_2_TYPE] = (byte)brickPi.Sensor[PORT_2 + idxArduino * 2].Type;
-                bool iscolor = false;
-                for (int idxPort = 0; idxPort < 2; idxPort++)
-                {                    
-                    int port = idxArduino * 2 + idxPort;
-                    //check if there is a sensor Light. If yes, then we'll need to wait super long to have it setup
-                    //othewise, quite fast
-                    if ((brickPi.Sensor[port].Type == BrickSensorType.EV3_COLOR_M0) ||
-                    (brickPi.Sensor[port].Type == BrickSensorType.EV3_COLOR_M1) ||
-                    (brickPi.Sensor[port].Type == BrickSensorType.EV3_COLOR_M2) ||
-                    (brickPi.Sensor[port].Type == BrickSensorType.EV3_COLOR_M3) ||
-                    (brickPi.Sensor[port].Type == BrickSensorType.EV3_COLOR_M4) ||
-                    (brickPi.Sensor[port].Type == BrickSensorType.EV3_COLOR_M5) ||
-                    (brickPi.Sensor[port].Type == BrickSensorType.COLOR_BLUE) ||
-                    (brickPi.Sensor[port].Type == BrickSensorType.COLOR_FULL) ||
-                    (brickPi.Sensor[port].Type == BrickSensorType.COLOR_GREEN) ||
-                    (brickPi.Sensor[port].Type == BrickSensorType.COLOR_NONE) ||
-                    (brickPi.Sensor[port].Type == BrickSensorType.COLOR_RED)
-                    )
-                        iscolor = true;
-                    if (dataArray.myArray[BYTE_SENSOR_1_TYPE + idxPort] == (byte)BrickSensorType.ULTRASONIC_CONT)
-                    {
-                        dataArray.myArray[BYTE_SENSOR_1_TYPE + idxPort] = (byte)BrickSensorType.I2C;
-                        brickPi.I2C[port].Speed = US_I2C_SPEED;
+
+            dataArray.Bit_Offset = 0;
+            dataArray.myArray[BYTE_MSG_TYPE] = MSG_TYPE_SENSOR_TYPE;
+            dataArray.myArray[BYTE_SENSOR_1_TYPE] = (byte)brickPi.Sensor[PORT_1 + idxArduino * 2].Type;
+            dataArray.myArray[BYTE_SENSOR_2_TYPE] = (byte)brickPi.Sensor[PORT_2 + idxArduino * 2].Type;
+            bool iscolor = false;
+            for (int idxPort = 0; idxPort < 2; idxPort++)
+            {                    
+                int port = idxArduino * 2 + idxPort;
+                //check if there is a sensor Light. If yes, then we'll need to wait super long to have it setup
+                //othewise, quite fast
+                if ((brickPi.Sensor[port].Type == BrickSensorType.EV3_COLOR_M0) ||
+                (brickPi.Sensor[port].Type == BrickSensorType.EV3_COLOR_M1) ||
+                (brickPi.Sensor[port].Type == BrickSensorType.EV3_COLOR_M2) ||
+                (brickPi.Sensor[port].Type == BrickSensorType.EV3_COLOR_M3) ||
+                (brickPi.Sensor[port].Type == BrickSensorType.EV3_COLOR_M4) ||
+                (brickPi.Sensor[port].Type == BrickSensorType.EV3_COLOR_M5) ||
+                (brickPi.Sensor[port].Type == BrickSensorType.COLOR_BLUE) ||
+                (brickPi.Sensor[port].Type == BrickSensorType.COLOR_FULL) ||
+                (brickPi.Sensor[port].Type == BrickSensorType.COLOR_GREEN) ||
+                (brickPi.Sensor[port].Type == BrickSensorType.COLOR_NONE) ||
+                (brickPi.Sensor[port].Type == BrickSensorType.COLOR_RED)
+                )
+                    iscolor = true;
+                if (dataArray.myArray[BYTE_SENSOR_1_TYPE + idxPort] == (byte)BrickSensorType.ULTRASONIC_CONT)
+                {
+                    dataArray.myArray[BYTE_SENSOR_1_TYPE + idxPort] = (byte)BrickSensorType.I2C;
+                    brickPi.I2C[port].Speed = US_I2C_SPEED;
+                    brickPi.I2C[port].Devices = 1;
+                    brickPi.Sensor[port].Settings[US_I2C_IDX] = BIT_I2C_MID | BIT_I2C_SAME;
+                    brickPi.I2C[port].Address[US_I2C_IDX] = LEGO_US_I2C_ADDR;
+                    brickPi.I2C[port].Write[US_I2C_IDX] = 1;
+                    brickPi.I2C[port].Read[US_I2C_IDX] = 1;
+                    brickPi.I2C[port].Out[US_I2C_IDX].InOut[0] = LEGO_US_I2C_DATA_REG;
+                }
+                if ((dataArray.myArray[BYTE_SENSOR_1_TYPE + idxPort] == (byte)BrickSensorType.I2C) || (dataArray.myArray[BYTE_SENSOR_1_TYPE + idxPort] == (byte)BrickSensorType.I2C_9V))
+                {
+                    dataArray.AddBits(3, 0, 8, brickPi.I2C[port].Speed);
+                    if (brickPi.I2C[port].Devices > 8)
+                        brickPi.I2C[port].Devices = 8;
+
+                    if (brickPi.I2C[port].Devices == 0)
                         brickPi.I2C[port].Devices = 1;
-                        brickPi.Sensor[port].Settings[US_I2C_IDX] = BIT_I2C_MID | BIT_I2C_SAME;
-                        brickPi.I2C[port].Address[US_I2C_IDX] = LEGO_US_I2C_ADDR;
-                        brickPi.I2C[port].Write[US_I2C_IDX] = 1;
-                        brickPi.I2C[port].Read[US_I2C_IDX] = 1;
-                        brickPi.I2C[port].Out[US_I2C_IDX].InOut[0] = LEGO_US_I2C_DATA_REG;
-                    }
-                    if ((dataArray.myArray[BYTE_SENSOR_1_TYPE + idxPort] == (byte)BrickSensorType.I2C) || (dataArray.myArray[BYTE_SENSOR_1_TYPE + idxPort] == (byte)BrickSensorType.I2C_9V))
+
+                    dataArray.AddBits(3, 0, 3, (brickPi.I2C[port].Devices - 1));
+
+                    for (int device = 0; device < brickPi.I2C[port].Devices; device++)
                     {
-                        dataArray.AddBits(3, 0, 8, brickPi.I2C[port].Speed);
-                        if (brickPi.I2C[port].Devices > 8)
-                            brickPi.I2C[port].Devices = 8;
-
-                        if (brickPi.I2C[port].Devices == 0)
-                            brickPi.I2C[port].Devices = 1;
-
-                        dataArray.AddBits(3, 0, 3, (brickPi.I2C[port].Devices - 1));
-
-                        for (int device = 0; device < brickPi.I2C[port].Devices; device++)
+                        dataArray.AddBits(3, 0, 7, (brickPi.I2C[port].Address[device] >> 1));
+                        dataArray.AddBits(3, 0, 2, brickPi.Sensor[port].Settings[device]);
+                        if ((brickPi.Sensor[port].Settings[device] & BIT_I2C_SAME) == BIT_I2C_SAME)
                         {
-                            dataArray.AddBits(3, 0, 7, (brickPi.I2C[port].Address[device] >> 1));
-                            dataArray.AddBits(3, 0, 2, brickPi.Sensor[port].Settings[device]);
-                            if ((brickPi.Sensor[port].Settings[device] & BIT_I2C_SAME) == BIT_I2C_SAME)
-                            {
-                                dataArray.AddBits(3, 0, 4, brickPi.I2C[port].Write[device]);
-                                dataArray.AddBits(3, 0, 4, brickPi.I2C[port].Read[device]);
+                            dataArray.AddBits(3, 0, 4, brickPi.I2C[port].Write[device]);
+                            dataArray.AddBits(3, 0, 4, brickPi.I2C[port].Read[device]);
 
-                                for (int out_byte = 0; out_byte < brickPi.I2C[port].Write[device]; out_byte++)
-                                    dataArray.AddBits(3, 0, 8, brickPi.I2C[port].Out[device].InOut[out_byte]);
-                            }
+                            for (int out_byte = 0; out_byte < brickPi.I2C[port].Write[device]; out_byte++)
+                                dataArray.AddBits(3, 0, 8, brickPi.I2C[port].Out[device].InOut[out_byte]);
                         }
                     }
                 }
+            }
+            while (retry < 2)
+            {
                 int tx_bytes = (((dataArray.Bit_Offset + 7) / 8) + 3); //#eq to UART_TX_BYTES
                 BrickPiTx(brickPi.Address[idxArduino], tx_bytes, dataArray.myArray);
                 //# Timeout set to 5 seconds to setup EV3 sensors successfully
@@ -569,11 +586,12 @@ namespace BrickPi
                 }
                 byte[] InArray = await BrickPiRx(timeout);
                 if (InArray == null)
-                    return false;
+                    retval = false;
                 else
                     if (((InArray[BYTE_MSG_TYPE] == MSG_TYPE_SENSOR_TYPE) && (InArray.Length == 1)))
                         return true;
                 retry++;
+                Debug.WriteLine("Trying again to setup sensors");
             }
             return retval;
             

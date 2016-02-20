@@ -85,11 +85,11 @@ namespace BrickPi
                 brickPi = new BrickPiStruct();
             if (serialPort == null)
                 SelectAndInitSerial(myserial).Wait();
-            if (!isThreadRunning)
-            {
-                Start();
-                Task.Delay(100).Wait();
-            }
+            //if (!isThreadRunning)
+            //{
+            //    Start();
+            //    Task.Delay(100).Wait();
+            //}
         }
 
         /// <summary>
