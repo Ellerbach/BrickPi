@@ -101,6 +101,7 @@
     <Compile Include="MotorTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SensorTests.cs" />
+    <Compile Include="TestUSBCam.cs" />
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest">

@@ -195,6 +195,25 @@ namespace BrickPiTests
             Debug.WriteLine(string.Format("Version number: {0}", val));
 
         }
+
+        private async Task TestNXTCS()
+        {
+            NXTColorSensor nxtlight = new NXTColorSensor(BrickPortSensor.PORT_S4);
+            RGBColor rgb;
+            bool bwait = true;
+            while (bwait)
+            {
+                Debug.WriteLine(string.Format("NXT Color Sensor, Raw: {0}, ReadASString: {1}, NumberNodes: {2}",
+                    nxtlight.ReadRaw(), nxtlight.ReadAsString(), nxtlight.SelectedMode()));
+                rgb = nxtlight.ReadRGBColor();
+                Debug.WriteLine(string.Format("Color: {0}, Red: {1}, Green: {2}, Blue: {3}",
+                    nxtlight.ReadColor(), rgb.Red, rgb.Green, rgb.Blue));
+                //                Debug.WriteLine(string.Format("raw {0}", nxtlight.ReadTest()));
+                await Task.Delay(300);
+            }
+
+
+        }
         //TODO: build other sensor tests
     }
 }

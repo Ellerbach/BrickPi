@@ -68,10 +68,12 @@ namespace BrickPiTests
             //brick.Start();
             //call the tests from here
             //await TestVehicule();
-            await TestEV3Color();
+            //await TestEV3Color();
             //await TestNXTUS();
             //await GetVersion();
-            brick.Stop();
+            //brick.Stop();
+            //await TestNXTCS();
+            //await TestCam();
         }
     }
 }
