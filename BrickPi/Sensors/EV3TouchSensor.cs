@@ -132,10 +132,10 @@ namespace BrickPi.Sensors
             string s = "";
             if (IsPressed())
             {
-                s = "Pressed";
+                s = "Not pressed";
             }
             else {
-                s = "Not pressed";
+                s = "Pressed";
             }
             return s;
         }
