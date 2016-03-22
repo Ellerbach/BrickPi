@@ -73,15 +73,16 @@ namespace BrickPiExample
                 int fLeft = faceRects[0].Left;
                 int iWidth = (int)maxRes.Width;
                 double percent = 0.20;
+                int degreesperRotation = 4;
 
                 if ((fLeft<(iWidth * percent)) && ((fLeft + fWidth) < iWidth * (1-percent)))
                 { 
                     // 360° = 1 turn of motor = 90° real turn
                     // using a simple projection for the math
-                    robot.TurnLeft(150, GetAngleToTurn(fLeft, iWidth, percent) * 4);
+                    robot.TurnLeft(150, GetAngleToTurn(fLeft, iWidth, percent) * degreesperRotation);
                 } else if (((fLeft + fWidth)>(iWidth * (1-percent))) && (fLeft>(iWidth*percent)))
                 {
-                    robot.TurnRight(150, GetAngleToTurn(iWidth - (fLeft + fWidth), iWidth, percent) * 4);
+                    robot.TurnRight(150, GetAngleToTurn(iWidth - (fLeft + fWidth), iWidth, percent) * degreesperRotation);
                 }
             }
         }
