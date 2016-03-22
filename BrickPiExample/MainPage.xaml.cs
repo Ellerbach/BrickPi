@@ -30,7 +30,6 @@ namespace BrickPiExample
     {
         private Brick brick;
         private SerialDevice serialPort = null;
-        private NXTTouchSensor touch;
         public MainPage()
         {
             this.InitializeComponent();
@@ -70,21 +69,8 @@ namespace BrickPiExample
         private async void MainPage_Loaded(object sender, RoutedEventArgs e)
         {
             await InitSerial();
-            try
-            {
-                touch = new NXTTouchSensor(BrickPortSensor.PORT_S2);
-                while (true)
-                {
-                    Debug.WriteLine(string.Format("touch {0}", touch.ValueAsString));
-                    await Task.Delay(100);
-                }
-            }
-            catch (Exception ex)
-            {
+            await LunchFollowMe();
 
-                Debug.WriteLine(ex.Message);
-            }
-            
         }
     }
 }
