@@ -38,22 +38,34 @@ namespace BrickPi.Tools
             StorageFile photoFile = await KnownFolders.PicturesLibrary.CreateFileAsync(
                     filename, CreationCollisionOption.GenerateUniqueName);
             ImageEncodingProperties imageProperties = ImageEncodingProperties.CreateJpeg();
-            if (mediaCapture == null)
-            { 
-                mediaCapture = new MediaCapture();
-                //need to be initialized
-                await mediaCapture.InitializeAsync();
-            }
-            // ask for all available resolutions
-            var resolutions = mediaCapture.VideoDeviceController.GetAvailableMediaStreamProperties(MediaStreamType.Photo).Select(x => x as VideoEncodingProperties);
+            // done in the next function: await InitCam();
             ////highest res possible
-            var maxRes = resolutions.OrderByDescending(x => x.Height * x.Width).FirstOrDefault();
+            var maxRes = await GetPictureRes();
             // Set to picture format
             await mediaCapture.VideoDeviceController.SetMediaStreamPropertiesAsync(MediaStreamType.Photo, maxRes);
             //clic clac, smile :-)
             await mediaCapture.CapturePhotoToStorageFileAsync(imageProperties, photoFile);
             return photoFile;
             
+        }
+        public static async Task<VideoEncodingProperties> GetPictureRes()
+        {
+            await InitCam();
+            var resolutions = mediaCapture.VideoDeviceController.GetAvailableMediaStreamProperties(MediaStreamType.Photo).Select(x => x as VideoEncodingProperties);
+            ////highest res possible
+            var maxRes = resolutions.OrderByDescending(x => x.Height * x.Width).FirstOrDefault();
+            return maxRes;
+        }
+
+        private static async Task InitCam()
+        {
+            if (mediaCapture == null)
+            {
+                mediaCapture = new MediaCapture();
+                //need to be initialized
+                await mediaCapture.InitializeAsync();
+            }
+
         }
     }
 }
