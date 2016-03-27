@@ -138,9 +138,9 @@ namespace BrickPi
         /// <summary>
         /// Setup sensors. Don't use this function if the brick is started, only when not started
         /// </summary>
-        public void SetupSensors()
+        public async Task<bool> SetupSensors()
         {
-            
+            bool retval = true;   
             for(int idxArduino = 0; idxArduino<2; idxArduino++)
             {
                 bool needsetup = false;
@@ -154,16 +154,21 @@ namespace BrickPi
                     }
                 }
                 if (needsetup)
-                { 
-                    if(!isThreadRunning)
-                        ThreadPool.RunAsync((iasyn) =>
+                {
+                    if (!isThreadRunning)
+                        ThreadPool.RunAsync(async (iasyn) =>
                         {
-                            BrickPiSetupSensors(idxArduino).Wait();
-                        },WorkItemPriority.High).AsTask().Wait();
+                            bool ret = await BrickPiSetupSensors(idxArduino);
+                            retval &= ret;
+                        }, WorkItemPriority.High).AsTask().Wait();
                     else
-                        BrickPiSetupSensors(idxArduino).Wait();
+                    {
+                        bool ret = await BrickPiSetupSensors(idxArduino);
+                        retval &= ret;
+                    }
                 }
             }
+            return retval;
         }
 
         /// <summary>
@@ -173,7 +178,7 @@ namespace BrickPi
         private async Task<bool> BrickPiUpdateValues()
         {
             //If setup is needed, then first setup the sensors
-            SetupSensors();
+            await SetupSensors();
             //if need to change the timeout of the brick
             if (needTimeout)
             {
@@ -265,7 +270,7 @@ namespace BrickPi
                     //wait for answer
                     // IMPORTANT: in theory, waiting time if 7.5 ms but it does create problems
                     // so it is working fine with a 20 ms timeout. 
-                    InArray = await BrickPiRx(20); //theory 7.5 ms                   
+                    InArray = await BrickPiRx(15); //theory 7.5 ms                   
                 }
                 catch (Exception ex)
                 {
@@ -515,7 +520,7 @@ namespace BrickPi
             Task.Delay(100).Wait();
             for (int i = 0; i < 4; i++)
                 brickPi.Sensor[i].Type = (BrickSensorType)70;
-            SetupSensors();
+            SetupSensors().Wait();
             UpdateValues();
             return brickPi.Sensor[0].Value;           
         }
@@ -565,18 +570,19 @@ namespace BrickPi
                 //check if there is a sensor Light. If yes, then we'll need to wait super long to have it setup
                 //othewise, quite fast
                 if ((brickPi.Sensor[port].Type == BrickSensorType.EV3_COLOR_M0) ||
-                (brickPi.Sensor[port].Type == BrickSensorType.EV3_COLOR_M1) ||
-                (brickPi.Sensor[port].Type == BrickSensorType.EV3_COLOR_M2) ||
-                (brickPi.Sensor[port].Type == BrickSensorType.EV3_COLOR_M3) ||
-                (brickPi.Sensor[port].Type == BrickSensorType.EV3_COLOR_M4) ||
-                (brickPi.Sensor[port].Type == BrickSensorType.EV3_COLOR_M5) ||
-                (brickPi.Sensor[port].Type == BrickSensorType.COLOR_BLUE) ||
-                (brickPi.Sensor[port].Type == BrickSensorType.COLOR_FULL) ||
-                (brickPi.Sensor[port].Type == BrickSensorType.COLOR_GREEN) ||
-                (brickPi.Sensor[port].Type == BrickSensorType.COLOR_NONE) ||
-                (brickPi.Sensor[port].Type == BrickSensorType.COLOR_RED)
-                )
+                    (brickPi.Sensor[port].Type == BrickSensorType.EV3_COLOR_M1) ||
+                    (brickPi.Sensor[port].Type == BrickSensorType.EV3_COLOR_M2) ||
+                    (brickPi.Sensor[port].Type == BrickSensorType.EV3_COLOR_M3) ||
+                    (brickPi.Sensor[port].Type == BrickSensorType.EV3_COLOR_M4) ||
+                    (brickPi.Sensor[port].Type == BrickSensorType.EV3_COLOR_M5) ||
+                    (brickPi.Sensor[port].Type == BrickSensorType.COLOR_BLUE) ||
+                    (brickPi.Sensor[port].Type == BrickSensorType.COLOR_FULL) ||
+                    (brickPi.Sensor[port].Type == BrickSensorType.COLOR_GREEN) ||
+                    (brickPi.Sensor[port].Type == BrickSensorType.COLOR_NONE) ||
+                    (brickPi.Sensor[port].Type == BrickSensorType.COLOR_RED))
+                { 
                     iscolor = true;
+                }
                 if (dataArray.myArray[BYTE_SENSOR_1_TYPE + idxPort] == (byte)BrickSensorType.ULTRASONIC_CONT)
                 {
                     dataArray.myArray[BYTE_SENSOR_1_TYPE + idxPort] = (byte)BrickSensorType.I2C;
@@ -622,9 +628,10 @@ namespace BrickPi
                 int timeout = 100;
                 if (iscolor)
                 {
-                    timeout = 3000;
+                    timeout = 1000;
                     Debug.WriteLine("initializing color sensor");
                 }
+                //use a small delay for cancellation if issue, for setup, should be fast
                 byte[] InArray = await BrickPiRx(timeout);
                 if (InArray == null)
                     retval = false;

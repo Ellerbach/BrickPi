@@ -33,6 +33,7 @@ namespace BrickPi
         static private bool isThreadRunning = false;
         static private DataReader dataReaderObject = null;
         static private DataWriter dataWriteObject = null;
+        const int CancelAfter = 50; // cancel every 50 millisec in case a problem appear
 
         /// <summary>
         /// Property for the main BrickPi Structure
@@ -220,12 +221,12 @@ namespace BrickPi
         /// </summary>
         /// <param name="timeout">Timeout in milliseconds</param>
         /// <returns></returns>
-        private async Task<byte[]> BrickPiRx(int timeout)
+        private async Task<byte[]> BrickPiRx(int timeout, int cancelAfter = CancelAfter)
         {
             // clean token
             if (ReadCancellationTokenSource == null)
                 ReadCancellationTokenSource = new CancellationTokenSource();
-            ReadCancellationTokenSource.CancelAfter(timeout + brickPi.Timeout);
+            ReadCancellationTokenSource.CancelAfter(timeout + cancelAfter);
             //read from the serial port
             byte[] rx_buffer = await ReadAsync(timeout, ReadCancellationTokenSource.Token);
             if (ReadCancellationTokenSource != null)
@@ -291,7 +292,7 @@ namespace BrickPi
                 if (dataReaderObject == null)
                     dataReaderObject = new DataReader(serialPort.InputStream);
                 // Set InputStreamOptions to complete the asynchronous read operation when one or more bytes is available
-                dataReaderObject.InputStreamOptions = InputStreamOptions.Partial;
+                dataReaderObject.InputStreamOptions = InputStreamOptions.ReadAhead;
                 // set serial timeout for reading. initialize the timout reading function
                 serialPort.ReadTimeout = TimeSpan.FromMilliseconds(timeout);
                 //await Task.Delay(timeout);

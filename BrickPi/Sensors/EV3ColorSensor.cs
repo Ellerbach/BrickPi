@@ -56,6 +56,7 @@ namespace BrickPi.Sensors
             brick = new Brick();
             Port = port;
             colorMode = mode;
+            //set the correct mode
             brick.BrickPi.Sensor[(int)Port].Type = GetEV3Mode(mode);
             periodRefresh = timeout;
             timer = new Timer(UpdateSensor, this, TimeSpan.FromMilliseconds(timeout), TimeSpan.FromMilliseconds(timeout));
@@ -105,16 +106,16 @@ namespace BrickPi.Sensors
             {
                 //question is about the various modes and if theyr are supported and how
                 case ColorSensorMode.Color:
-                    ret = BrickSensorType.EV3_COLOR_M3;
+                    ret = BrickSensorType.EV3_COLOR_M2;
                     break;
                 case ColorSensorMode.Reflection:
                     ret = BrickSensorType.EV3_COLOR_M0;
                     break;
                 case ColorSensorMode.Green:
-                    ret = BrickSensorType.EV3_COLOR_M2;
+                    ret = BrickSensorType.EV3_COLOR_M3;
                     break;
                 case ColorSensorMode.Blue:
-                    ret = BrickSensorType.EV3_COLOR_M2;
+                    ret = BrickSensorType.EV3_COLOR_M4;
                     break;
                 case ColorSensorMode.Ambient:
                     ret = BrickSensorType.EV3_COLOR_M1; 

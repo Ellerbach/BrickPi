@@ -129,9 +129,9 @@ namespace BrickPi
 
         const int BYTE_TIMEOUT = 1;
 
-        const int TYPE_MOTOR_PWM = 0;
-        const int TYPE_MOTOR_SPEED = 1;
-        const int TYPE_MOTOR_POSITION = 2;
+        //const int TYPE_MOTOR_PWM = 0;
+        //const int TYPE_MOTOR_SPEED = 1;
+        //const int TYPE_MOTOR_POSITION = 2;
 
         //const int TYPE_SENSOR_RAW = (int)BrickSensorType.SENSOR_RAW;
         const int TYPE_SENSOR_LIGHT_OFF = 0;
