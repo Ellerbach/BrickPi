@@ -293,7 +293,7 @@ namespace BrickPi.Sensors
             Color color = Color.None;
             if (colorMode == ColorSensorMode.Color)
             {
-                color = CalculateColor();
+                color = (Color)brick.BrickPi.Sensor[(int)Port].Value; //CalculateColor();
             }
             return color;
         }
