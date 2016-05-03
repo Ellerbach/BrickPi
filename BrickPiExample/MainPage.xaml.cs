@@ -33,11 +33,7 @@ namespace BrickPiExample
         public MainPage()
         {
             this.InitializeComponent();
-
-            
-
-                this.Loaded += MainPage_Loaded;
-
+            this.Loaded += MainPage_Loaded;
         }
 
         /// <summary>
@@ -71,6 +67,12 @@ namespace BrickPiExample
             await InitSerial();
             await LunchFollowMe();
 
+        }
+
+
+        private void Button_Click_1(object sender, RoutedEventArgs e)
+        {
+            this.Frame.Navigate(typeof(ControlPage));
         }
     }
 }

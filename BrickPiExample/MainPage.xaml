@@ -8,11 +8,13 @@
     mc:Ignorable="d">
 
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-        <Grid x:Name="BackPanel">
-            <Image x:Name="FacePhoto" Stretch="Uniform" Margin="0,0,0,30"/>
-            <Rectangle x:Name="Rect" Fill="Transparent" Stroke="Transparent" StrokeThickness="4" Margin="77,56,1455,792"/>
-        </Grid>
-        <TextBlock x:Name="Title">Status</TextBlock>
+        <StackPanel>
+            <TextBlock Name="Title" Text="Status" FontWeight="Light" FontSize="24" Margin="0,0,10.333,0" Height="53" />
+            <Button Content="Control Page" Click="Button_Click_1" />
+            <Grid x:Name="BackPanel" Margin="0,12.333,0,0" Grid.Row="1">
+                <Image x:Name="FacePhoto" Stretch="Uniform" Margin="0,0,0,30"/>
+                <Rectangle x:Name="Rect" Fill="Transparent" Stroke="Transparent" StrokeThickness="4" Margin="77,56,1455,792"/>
+            </Grid>
+        </StackPanel>
     </Grid>
-    
 </Page>

@@ -14,6 +14,7 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
+using Windows.UI.Core;
 
 namespace BrickPiExample
 {
@@ -76,6 +77,38 @@ namespace BrickPiExample
             }
             // Ensure the current window is active
             Window.Current.Activate();
+          
+            SystemNavigationManager.GetForCurrentView().BackRequested +=
+        App_BackRequested;
+
+            rootFrame.Navigated += RootFrame_Navigated;
+        }
+       
+
+        private void RootFrame_Navigated(object sender, NavigationEventArgs e)
+        {
+            Frame rootFrame = Window.Current.Content as Frame;
+            SystemNavigationManager.GetForCurrentView().AppViewBackButtonVisibility
+                = rootFrame.CanGoBack ? AppViewBackButtonVisibility.Visible :
+                                        AppViewBackButtonVisibility.Collapsed;
+        }
+
+
+        private void App_BackRequested(object sender, BackRequestedEventArgs e)
+        {
+            // Check that no one has already handled this
+            if (!e.Handled)
+            {
+                // Default is to navigate back within the Frame
+                Frame frame = Window.Current.Content as Frame;
+                if (frame.CanGoBack)
+                {
+                    frame.GoBack();
+                    // Signal handled so the system doesn't navigate back 
+                    // through the app stack
+                    e.Handled = true;
+                }
+            }
         }
 
         /// <summary>

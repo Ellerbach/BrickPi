@@ -1,0 +1,71 @@
+﻿<Page
+    x:Class="BrickPiExample.ControlPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:BrickPiExample"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <StackPanel Margin="10,10,-297,10">
+            <TextBlock Text="Control Page" FontWeight="Light" FontSize="24" Margin="0,0,10.333,0" Height="53" />
+            <Pivot Margin="0,0,10,0" Height="891">
+                <PivotItem Header="Sensors">
+                    <Grid>
+                        <Hub>
+                            <HubSection Header="Sensor 1">
+                                <DataTemplate>
+                                    <StackPanel>
+                                        <TextBlock x:Name="SensorValueTXT" Text="Value:"></TextBlock>
+                                        <ListView Header="Select Mode">
+                                            <ListViewItem Content="Mode1"></ListViewItem>
+                                            <ListViewItem Content="Mode2"></ListViewItem>
+                                        </ListView>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </HubSection>
+                            <HubSection Header="Sensor 2">
+                                <DataTemplate>
+                                    <Grid/>
+                                </DataTemplate>
+                            </HubSection>
+                            <HubSection Header="Sensor 3">
+                                <DataTemplate>
+                                    <Grid/>
+                                </DataTemplate>
+                            </HubSection>
+                        </Hub>
+                    </Grid>
+                </PivotItem>
+                <PivotItem Header="Motors">
+                    <Grid>
+                        <Hub>
+                            <HubSection Header="Motor 1">
+                                <DataTemplate>
+                                    <Grid/>
+                                </DataTemplate>
+                            </HubSection>
+                            <HubSection Header="Motor 2">
+                                <DataTemplate>
+                                    <Grid/>
+                                </DataTemplate>
+                            </HubSection>
+                            <HubSection Header="Motor 3">
+                                <DataTemplate>
+                                    <Grid/>
+                                </DataTemplate>
+                            </HubSection>
+                            <HubSection Header="Motor 4">
+                                <DataTemplate>
+                                    <Grid/>
+                                </DataTemplate>
+                            </HubSection>
+                        </Hub>
+                    </Grid>
+                </PivotItem>
+            </Pivot>
+        </StackPanel>
+
+    </Grid>
+</Page>
